@@ -8,7 +8,9 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: msi.gama.core;bundle-version="1.8.1",
  msi.gama.ext;bundle-version="1.8.1",
  ummisco.gama.annotations
-Export-Package: gaml.additions,
- irit,
- irit.gaml,
- irit.gaml.types
+Export-Package: irit.gaml.statements,
+ irit.gaml.types;
+  uses:="msi.gama.runtime,
+   msi.gaml.expressions,
+   msi.gaml.types,
+   irit.gama.util"
