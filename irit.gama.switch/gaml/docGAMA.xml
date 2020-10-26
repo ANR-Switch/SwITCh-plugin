@@ -150,26 +150,7 @@
 <operatorsCategories>
 <category id="Iterator operators"/>
 </operatorsCategories>
-<operators>
-<operator alphabetOrder="im" id="list" name="list">
-<operatorCategories>
-<category id="Types-related operators"/>
-</operatorCategories>
-<concepts>
-<concept id="type"/>
-<concept id="container"/>
-<concept id="list"/>
-</concepts>
-<combinaisonIO>
-<operands class="irit.gaml.types.GamaListType" contentType="" returnType="list" type="">
-<operand name="val" position="0" type="any"/>
-</operands>
-</combinaisonIO>
-<documentation>
-<result>casts the operand in a list object.</result>
-</documentation>
-</operator>
-</operators>
+<operators/>
 <skills/>
 <architectures/>
 <speciess/>
@@ -178,16 +159,5 @@
 <statementsKinds/>
 <statements/>
 <files/>
-<types>
-<type id="5" kind="102" name="list">
-<documentation>
-<result>Ordered collection of values or agents</result>
-</documentation>
-<concepts>
-<concept id="type"/>
-<concept id="container"/>
-<concept id="list"/>
-</concepts>
-</type>
-</types>
+<types/>
 </doc>

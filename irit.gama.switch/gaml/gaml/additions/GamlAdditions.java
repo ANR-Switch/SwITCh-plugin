@@ -56,8 +56,5 @@ import static msi.gama.common.interfaces.IKeyword.*;
 
 public class GamlAdditions extends AbstractGamlAdditions {
 	public void initialize() throws SecurityException, NoSuchMethodException {
-	initializeType();
-}public void initializeType()  {
-_type("list",new irit.gaml.types.GamaListType(),5,102,LI);
 }
 }

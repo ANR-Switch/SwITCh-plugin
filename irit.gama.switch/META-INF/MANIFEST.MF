@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: irit.gama.feature.switch
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: msi.gama.core;bundle-version="1.8.1",
- msi.gama.ext;bundle-version="1.8.1"
+ msi.gama.ext;bundle-version="1.8.1",
+ ummisco.gama.annotations
 Export-Package: gaml.additions,
  irit,
  irit.gaml,
