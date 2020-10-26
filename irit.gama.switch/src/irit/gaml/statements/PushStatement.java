@@ -11,6 +11,8 @@
 package irit.gaml.statements;
 
 import msi.gama.common.interfaces.IKeyword;
+import msi.gama.metamodel.agent.IAgent;
+import msi.gama.metamodel.shape.IShape;
 import msi.gama.precompiler.GamlAnnotations.doc;
 import msi.gama.precompiler.GamlAnnotations.example;
 import msi.gama.precompiler.GamlAnnotations.facet;
@@ -21,56 +23,91 @@ import msi.gama.precompiler.GamlAnnotations.usage;
 import msi.gama.precompiler.ISymbolKind;
 import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
+import msi.gama.util.IContainer;
+
 import msi.gaml.descriptions.IDescription;
+import msi.gaml.expressions.IExpression;
+import msi.gaml.operators.Cast;
 import msi.gaml.statements.AbstractStatement;
 import msi.gaml.types.IType;
 
 import irit.gama.common.interfaces.IKeywordIrit;
 import irit.gama.precompiler.IConceptIrit;
 import irit.gama.precompiler.ITypeIrit;
+import irit.gama.util.GamaDeque;
+import irit.gama.util.GamaQueue;
+import irit.gama.util.IDequeOperator;
 
 @symbol(
 		name = IKeywordIrit.PUSH, 
 		kind = ISymbolKind.SINGLE_STATEMENT, 
 		with_sequence = false,
-		concept = { IConceptIrit.DEQUE })
+		concept = { IConceptIrit.DEQUE, IConceptIrit.STACK, IConceptIrit.QUEUE })
 @inside(
 		kinds = { ISymbolKind.BEHAVIOR, ISymbolKind.SEQUENCE_STATEMENT, ISymbolKind.LAYER },
 		symbols = IKeyword.CHART)
 @doc (
-		value = "Allows to add, i.e. to insert, a new element in a deque. If head: true then insert at the first index, at the end otherwise",
-		usages = { @usage (value = "The new element can be added either at the end of the container or at the front",
+		value = "Allows to add, i.e. to insert, a new element in a deque",
+		usages = { @usage (value = "The new element can be added either at the end of the deque",
 				examples = { 
 						@example (
-								value = "push expr to: deque;					// Add at the end",
+								value = "push expr to: stack;		// Add at the end",
 								isExecutable = false),
 						@example (
-								value = "push expr head: true to: deque;		// Add at the first position",
+								value = "push expr to: queue;		// Add at the end",
 								isExecutable = false) })})
 @facets(
 		value = { 
-				 @facet (
-						 name = IKeyword.TO,
-						 type = { ITypeIrit.DEQUE},
-						 optional = false,
-						 doc = { @doc ("an expression that evaluates to deque") }),
-				 @facet(
-						name = IKeywordIrit.HEAD, 
-						type = IType.BOOL, 
-						optional = true,
-						doc = { @doc ("if true insert at the first index") }), }, 
-		omissible = IKeyword.NAME)
+			 @facet (
+				name = IKeyword.ITEM,
+				type = IType.NONE,
+				optional = false,
+				doc = { @doc ("any expression to add in the deque") }),
+			 @facet (
+				name = IKeyword.TO,
+				type = { ITypeIrit.DEQUE, ITypeIrit.STACK, ITypeIrit.QUEUE},
+				optional = false,
+				doc = { @doc ("an expression that evaluates to deque") }), }, 
+		omissible = IKeyword.ITEM)
+@SuppressWarnings({ "rawtypes", "unused", "unchecked" })
 public class PushStatement extends AbstractStatement {
 
+	final IExpression itemExp;
+	final IExpression toExp;
+	
 	public PushStatement(IDescription desc) {
 		super(desc);
-		// TODO Auto-generated constructor stub
+		
+		// Get facets
+		itemExp = getFacet(IKeyword.ITEM);
+		toExp = getFacet(IKeyword.TO);
+
+		// Save data from facets
+		String toName = (toExp != null) ? toExp.literalValue() : null;
+
+		// Set name
+		setName("push to " + toName);
+	}
+	
+	private GamaDeque identifyContainer(final IScope scope, final IExpression toExp) throws GamaRuntimeException {
+		final Object cont = toExp.value(scope);
+		if(cont instanceof GamaDeque) {
+			return (GamaDeque) cont;
+		}
+		return null;
 	}
 
 	@Override
 	protected Object privateExecuteIn(IScope scope) throws GamaRuntimeException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		GamaDeque to = identifyContainer(scope, toExp);
+		Object data = itemExp.value(scope);
+
+		if(to != null && data != null) {				
+			to.addLast(data);
+		}
+		
+		return data;
 	}
 
 }

@@ -32,37 +32,37 @@ import msi.gaml.types.Types;
 import irit.gama.common.interfaces.IKeywordIrit;
 import irit.gama.precompiler.IConceptIrit;
 import irit.gama.precompiler.ITypeIrit;
-import irit.gama.util.GamaDeque;
+import irit.gama.util.GamaQueue;
 
 @SuppressWarnings("rawtypes")
 @type(
-		name = IKeywordIrit.DEQUE, 
-		id = ITypeIrit.DEQUE, 
-		wraps = { GamaDeque.class }, 
+		name = IKeywordIrit.QUEUE, 
+		id = ITypeIrit.QUEUE, 
+		wraps = { GamaQueue.class }, 
 		kind = ISymbolKind.Variable.CONTAINER, 
-		doc = {@doc("Deque")},
-		concept = { IConcept.TYPE, IConcept.CONTAINER, IConceptIrit.DEQUE })
-public class GamaDequeType extends GamaContainerType<GamaDeque> {
+		doc = {@doc("Queue")},
+		concept = { IConcept.TYPE, IConcept.CONTAINER, IConceptIrit.DEQUE, IConceptIrit.QUEUE })
+public class GamaQueueType extends GamaContainerType<GamaQueue> {
 
 	/**
 	 * TEMPORY CONSTRUCTOR
 	 * TODO REMOVE THIS
 	 */
-	public GamaDequeType() {
-		id = ITypeIrit.DEQUE;
-		name = IKeywordIrit.DEQUE;
+	public GamaQueueType() {
+		id = ITypeIrit.QUEUE;
+		name = IKeywordIrit.QUEUE;
 		parent = null;
 		parented = false;
 		plugin = "irit.gama.switch";
-		support = GamaDeque.class;
+		support = GamaQueue.class;
 		varKind = ISymbolKind.Variable.CONTAINER;
 	}
 	
 	/**
-	 * Cast data into GamaFifo
+	 * Cast data into GamaQueue
 	 */
 	@Override
-	public GamaDeque cast(final IScope scope, final Object obj, final Object param, final IType keyType,
+	public GamaQueue cast(final IScope scope, final Object obj, final Object param, final IType keyType,
 			final IType contentsType, final boolean copy) throws GamaRuntimeException {
 		return staticCast(scope, obj, contentsType, copy);
 	}
@@ -71,51 +71,51 @@ public class GamaDequeType extends GamaContainerType<GamaDeque> {
 	 * Static cast definition
 	 */
 	@SuppressWarnings("unchecked")
-	public static GamaDeque staticCast(final IScope scope, final Object obj, final IType<?> ct, final boolean copy)
+	public static GamaQueue staticCast(final IScope scope, final Object obj, final IType<?> ct, final boolean copy)
 			throws GamaRuntimeException {
 		final IType<?> contentsType = ct == null ? Types.NO_TYPE : ct;
 
 		if (obj == null) {
-			return new GamaDeque(contentsType);
+			return new GamaQueue(contentsType);
 		}
 
 		if (obj instanceof GamaDate) {
-			return new GamaDeque(contentsType, ((GamaDate) obj).listValue(scope, contentsType));
+			return new GamaQueue(contentsType, ((GamaDate) obj).listValue(scope, contentsType));
 		}
 
 		if (obj instanceof IContainer) {
 			if (obj instanceof IPopulation) {
-				return new GamaDeque(contentsType, ((IPopulation) obj).listValue(scope, contentsType, true));
+				return new GamaQueue(contentsType, ((IPopulation) obj).listValue(scope, contentsType, true));
 			}
-			return new GamaDeque(contentsType, ((IContainer) obj).listValue(scope, contentsType, true));
+			return new GamaQueue(contentsType, ((IContainer) obj).listValue(scope, contentsType, true));
 		}
 
 		if (obj instanceof Collection) {
-			return new GamaDeque(contentsType, (Collection) obj);
+			return new GamaQueue(contentsType, (Collection) obj);
 		}
 
 		if (obj instanceof Color) {
 			final Color c = (Color) obj;
-			return new GamaDeque(contentsType, new Integer[] { c.getRed(), c.getGreen(), c.getBlue() });
+			return new GamaQueue(contentsType, new Integer[] { c.getRed(), c.getGreen(), c.getBlue() });
 		}
 
 		if (obj instanceof GamaPoint) {
 			final GamaPoint point = (GamaPoint) obj;
-			return new GamaDeque(contentsType, new Double[] { point.x, point.y, point.z });
+			return new GamaQueue(contentsType, new Double[] { point.x, point.y, point.z });
 		}
 
 		if (obj instanceof String) {
-			return new GamaDeque(contentsType, StringUtils.tokenize((String) obj));
+			return new GamaQueue(contentsType, StringUtils.tokenize((String) obj));
 		}
 
-		return new GamaDeque(contentsType, new Object[] { obj });
+		return new GamaQueue(contentsType, new Object[] { obj });
 	}
 
 	/**
 	 * Get default value
 	 */
 	@Override
-	public GamaDeque getDefault() {
+	public GamaQueue getDefault() {
 		return null;	
 	}
 	

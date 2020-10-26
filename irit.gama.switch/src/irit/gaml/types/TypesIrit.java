@@ -2,7 +2,11 @@ package irit.gaml.types;
 
 public class TypesIrit {
 	/**
-	 * Static FIFO
+	 * Static QUEUE
 	 */
-	public static GamaDequeType FIFO = new irit.gaml.types.GamaDequeType();
+	public static GamaQueueType QUEUE = new irit.gaml.types.GamaQueueType();
+	/**
+	 * Static STACK
+	 */
+	public static GamaStackType STACK = new irit.gaml.types.GamaStackType();
 }

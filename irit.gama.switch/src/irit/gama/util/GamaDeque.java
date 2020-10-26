@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import irit.gaml.types.TypesIrit;
 import msi.gama.common.util.StringUtils;
 import msi.gama.metamodel.shape.ILocation;
 import msi.gama.runtime.IScope;
@@ -27,6 +26,7 @@ import msi.gama.util.IContainer;
 import msi.gama.util.IList;
 import msi.gama.util.IMap;
 import msi.gama.util.matrix.IMatrix;
+import msi.gaml.types.GamaIntegerType;
 import msi.gaml.types.GamaMatrixType;
 import msi.gaml.types.IContainerType;
 import msi.gaml.types.IType;
@@ -36,7 +36,7 @@ import msi.gaml.types.Types;
 /**
  * The Class GamaDeque.
  */
-public class GamaDeque<T> extends ArrayDeque<T> implements IDeque<T> {
+public class GamaDeque<T> extends ArrayDeque<T> implements IContainer<Integer, T> {
 
 	// ############################################
 	// Attributs
@@ -50,39 +50,35 @@ public class GamaDeque<T> extends ArrayDeque<T> implements IDeque<T> {
 	/**
 	 * GAMA type
 	 */
-	private IContainerType<?> type;
+	protected IContainerType<?> type;
 
 	// ############################################
 	// Constructors
 
 	/**
-	 * Constructor
+	 * Default constructor
 	 */
-	public GamaDeque(IType<?> contentsType) {
+	public GamaDeque(IContainerType<?> contentsType) {
 		super();
-		type = TypesIrit.FIFO.of(contentsType);
+		type = contentsType;
 	}
 
 	/**
-	 * Constructor with data
+	 * Constructor with values and type (array)
 	 */
-	public GamaDeque(IType<?> contentsType, T[] values) {
+	public GamaDeque(IContainerType<?> contentsType, T[] values) {
 		super();
-		for (T v : values) {
-			add(v);
-		}
-		type = TypesIrit.FIFO.of(contentsType);
+		type = contentsType;
+		addAll(values);
 	}
-
+	
 	/**
-	 * Constructor with data
+	 * Constructor with values and type (Collection)
 	 */
-	public GamaDeque(IType<?> contentsType, Collection<T> values) {
+	public GamaDeque(IContainerType<?> contentsType, Collection<T> values) {
 		super();
-		for (T v : values) {
-			add(v);
-		}
-		type = TypesIrit.FIFO.of(contentsType);
+		type = contentsType;
+		addAll(values);
 	}
 
 	/**
@@ -91,6 +87,40 @@ public class GamaDeque<T> extends ArrayDeque<T> implements IDeque<T> {
 	public GamaDeque(GamaDeque<T> gq) {
 		super(gq.clone());
 		type = gq.getGamlType();
+	}
+
+	// ############################################
+	// Methods
+
+	/**
+	 * Add all values
+	 */
+	private void addAll(T[] values) {
+		for (T v : values) {
+			add(v);
+		}
+	}
+
+	/**
+	 * Build value
+	 */
+	public T buildValue(final IScope scope, final Object object) {
+		final IType<?> ct = getGamlType().getContentType();
+		return (T) ct.cast(scope, object, null, false);
+	}
+
+	/**
+	 * Build values
+	 */
+	public GamaDeque<T> buildValues(final IScope scope, final IContainer<?, ?> objects) {
+		return (GamaDeque<T>) getGamlType().cast(scope, objects, null, false);
+	}
+
+	/**
+	 * Build index
+	 */
+	public Integer buildIndex(final IScope scope, final Object object) {
+		return GamaIntegerType.staticCast(scope, object, null, false);
 	}
 
 	// ############################################
@@ -255,21 +285,4 @@ public class GamaDeque<T> extends ArrayDeque<T> implements IDeque<T> {
 	public IMatrix<?> matrixValue(IScope scope, IType<?> contentType, ILocation size, boolean copy) {
 		return GamaMatrixType.from(scope, listValue(scope, contentType, copy), contentType, size);
 	}
-
-	// ############################################
-	// Override: methods deque statements
-
-	// ############################################
-	// Override: methods deque
-
-	@Override
-	public T popFirst(IScope scope) {
-		return pollFirst();
-	}
-
-	@Override
-	public T popLast(IScope scope) {
-		return pollLast();
-	}
-
 }
