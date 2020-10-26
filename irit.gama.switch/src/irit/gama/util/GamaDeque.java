@@ -36,7 +36,7 @@ import msi.gaml.types.Types;
 /**
  * The Class GamaDeque.
  */
-public class GamaDeque<T> extends ArrayDeque<T> implements IContainer<Integer, T> {
+public class GamaDeque<T> extends ArrayDeque<T> implements IContainer<Integer, Object> {
 
 	// ############################################
 	// Attributs

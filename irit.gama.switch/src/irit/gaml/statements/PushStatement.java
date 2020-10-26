@@ -24,7 +24,7 @@ import msi.gama.precompiler.ISymbolKind;
 import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
 import msi.gama.util.IContainer;
-
+import msi.gama.util.graph.IGraph;
 import msi.gaml.descriptions.IDescription;
 import msi.gaml.expressions.IExpression;
 import msi.gaml.operators.Cast;
@@ -42,7 +42,7 @@ import irit.gama.util.IDequeOperator;
 		name = IKeywordIrit.PUSH, 
 		kind = ISymbolKind.SINGLE_STATEMENT, 
 		with_sequence = false,
-		concept = { IConceptIrit.DEQUE, IConceptIrit.STACK, IConceptIrit.QUEUE })
+		concept = { IConceptIrit.STACK, IConceptIrit.QUEUE })
 @inside(
 		kinds = { ISymbolKind.BEHAVIOR, ISymbolKind.SEQUENCE_STATEMENT, ISymbolKind.LAYER },
 		symbols = IKeyword.CHART)
@@ -96,7 +96,7 @@ public class PushStatement extends AbstractStatement {
 		}
 		return null;
 	}
-
+	
 	@Override
 	protected Object privateExecuteIn(IScope scope) throws GamaRuntimeException {
 		
@@ -107,7 +107,7 @@ public class PushStatement extends AbstractStatement {
 			to.addLast(data);
 		}
 		
-		return data;
+		return to;
 	}
 
 }

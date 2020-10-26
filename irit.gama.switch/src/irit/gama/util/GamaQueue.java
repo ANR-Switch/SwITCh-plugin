@@ -20,7 +20,7 @@ import irit.gaml.types.TypesIrit;
 /**
  * The Class GamaQueue.
  */
-public class GamaQueue<T> extends GamaDeque<T> implements IDequeOperator<T> {
+public class GamaQueue<T> extends GamaDeque<T> implements IDequeOperator<Object> {
 	
 	// ############################################
 	// Attributs
