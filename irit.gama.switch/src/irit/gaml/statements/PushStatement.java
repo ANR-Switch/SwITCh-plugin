@@ -1,6 +1,6 @@
 /*******************************************************************************************************
  *
- * msi.gaml.statements.AddStatement.java, in plugin msi.gama.core, is part of the source code of the GAMA modeling and
+ * PushStatement.java, in plugin irit.gama.switch, is part of the source code of the GAMA modeling and
  * simulation platform (v. 1.8.1)
  *
  * (c) 2007-2020 UMI 209 UMMISCO IRD/SU & Partners
@@ -38,6 +38,9 @@ import irit.gama.util.GamaDeque;
 import irit.gama.util.GamaQueue;
 import irit.gama.util.IDequeOperator;
 
+/**
+ * Push data into queue or stack
+ */
 @symbol(
 		name = IKeywordIrit.PUSH, 
 		kind = ISymbolKind.SINGLE_STATEMENT, 
@@ -65,16 +68,22 @@ import irit.gama.util.IDequeOperator;
 				doc = { @doc ("any expression to add in the deque") }),
 			 @facet (
 				name = IKeyword.TO,
-				type = { ITypeIrit.DEQUE, ITypeIrit.STACK, ITypeIrit.QUEUE},
+				type = { ITypeIrit.STACK, ITypeIrit.QUEUE},
 				optional = false,
-				doc = { @doc ("an expression that evaluates to deque") }), }, 
+				doc = { @doc ("the stack or queue") }), }, 
 		omissible = IKeyword.ITEM)
 @SuppressWarnings({ "rawtypes", "unused", "unchecked" })
 public class PushStatement extends AbstractStatement {
 
+	/**
+	 * Expressions from GAML code (from facets)
+	 */
 	final IExpression itemExp;
 	final IExpression toExp;
 	
+	/**
+	 * Push constructor
+	 */
 	public PushStatement(IDescription desc) {
 		super(desc);
 		
@@ -89,6 +98,9 @@ public class PushStatement extends AbstractStatement {
 		setName("push to " + toName);
 	}
 	
+	/**
+	 * Return object casted into GamaDeque if possible, null otherwise
+	 */
 	private GamaDeque identifyContainer(final IScope scope, final IExpression toExp) throws GamaRuntimeException {
 		final Object cont = toExp.value(scope);
 		if(cont instanceof GamaDeque) {
@@ -97,16 +109,20 @@ public class PushStatement extends AbstractStatement {
 		return null;
 	}
 	
+	/**
+	 * Main fonction
+	 */
 	@Override
 	protected Object privateExecuteIn(IScope scope) throws GamaRuntimeException {
-		
+		// Cast dequeu if possible
 		GamaDeque to = identifyContainer(scope, toExp);
+		// Get value form facet
 		Object data = itemExp.value(scope);
 
+		// Check if deque and data are not null and insert data
 		if(to != null && data != null) {				
 			to.addLast(data);
 		}
-		
 		return to;
 	}
 

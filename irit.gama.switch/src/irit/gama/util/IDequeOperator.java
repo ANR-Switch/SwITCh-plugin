@@ -10,7 +10,13 @@ import msi.gama.precompiler.ITypeProvider;
 import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
 
+/**
+ * Deque operators
+ */
 public interface IDequeOperator<T> {
+	/**
+	 * Pop operator must be redefined in queue and stack classes
+	 */
 	@operator(
 			value = "pop", 
 			can_be_const = true, 

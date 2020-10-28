@@ -1,6 +1,6 @@
 /*******************************************************************************************************
  *
- * GamaFifo.java, in plugin irit.gama.switch, is part of the source code of the GAMA modeling and simulation
+ * GamaDeque.java, in plugin irit.gama.switch, is part of the source code of the GAMA modeling and simulation
  * platform (v. 1.8.1)
  *
  * (c) 2007-2020 UMI 209 UMMISCO IRD/SU & Partners
@@ -32,10 +32,10 @@ import msi.gaml.types.IContainerType;
 import msi.gaml.types.IType;
 import msi.gaml.types.Types;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
 /**
  * The Class GamaDeque.
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class GamaDeque<T> extends ArrayDeque<T> implements IContainer<Integer, Object> {
 
 	// ############################################
