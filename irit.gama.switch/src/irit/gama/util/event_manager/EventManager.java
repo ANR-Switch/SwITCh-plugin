@@ -59,6 +59,10 @@ public class EventManager extends HashMap<String, EventQueue> {
 
 		for (Entry<String, EventQueue> entry : entrySet()) {
 			Event currentEvent = entry.getValue().peek();
+			
+			if(currentEvent == null) {
+				continue;
+			}
 
 			if ((bestEvent == null) || bestEvent.isGreaterThan(currentEvent)) {
 				bestEvent = currentEvent;
@@ -174,7 +178,7 @@ public class EventManager extends HashMap<String, EventQueue> {
 	public Object register(final IScope scope, final String species, final ActionDescription action,
 			final GamaMap<String, Object> args, final GamaDate date) throws GamaRuntimeException {
 
-		if (!pastAllowed && (date == null || scope.getClock().getCurrentDate().isGreaterThan(date, true))) {
+		if (!pastAllowed && (date != null && scope.getClock().getCurrentDate().isGreaterThan(date, true))) {
 			throw GamaRuntimeException.warning("Past is not allowed " + species + " at " + date, scope);
 		}
 

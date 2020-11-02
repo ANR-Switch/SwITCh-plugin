@@ -13,6 +13,7 @@ package irit.gama.util.event_manager;
 
 import java.util.Comparator;
 
+import irit.gama.common.interfaces.IKeywordIrit;
 import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
 import msi.gama.util.GamaDate;
@@ -179,6 +180,10 @@ public class Event {
 	 * Execute the action
 	 */
 	public Object execute() {
+		if(date == null) {
+			date = scope.getClock().getCurrentDate();
+		}
+		scope.getAgent().setAttribute(IKeywordIrit.EVENT_DATE, date);
 		return scope.execute(action, getRuntimeArgs()).getValue();
 	}
 

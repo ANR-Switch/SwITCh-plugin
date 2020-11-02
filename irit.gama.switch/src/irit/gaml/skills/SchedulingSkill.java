@@ -38,7 +38,8 @@ import msi.gaml.types.IType;
  * @author Jean-François Erdelyi
  */
 @vars({ @variable(name = IKeywordIrit.EVENT_MANAGER, type = IType.AGENT, doc = {
-		@doc("The event manager, must be defined in another species with \"control: event_manager\"") }) })
+		@doc("The event manager, must be defined in another species with \"control: event_manager\"") }),
+		@variable(name = IKeywordIrit.EVENT_DATE, type = IType.DATE, doc = { @doc("The date of the next event") }) })
 @skill(name = IKeywordIrit.SCHEDULING, concept = { IKeywordIrit.SCHEDULING, IConcept.SKILL }, internal = true)
 public class SchedulingSkill extends Skill {
 
@@ -59,6 +60,14 @@ public class SchedulingSkill extends Skill {
 			return null;
 		}
 		return (IAgent) agent.getAttribute(IKeywordIrit.EVENT_MANAGER);
+	}
+
+	@getter(IKeywordIrit.EVENT_DATE)
+	public GamaDate getAt(final IAgent agent) {
+		if (agent == null) {
+			return null;
+		}
+		return (GamaDate) agent.getAttribute(IKeywordIrit.EVENT_DATE);
 	}
 
 	// ############################################
