@@ -1,6 +1,6 @@
 /*******************************************************************************************************
  *
- * msi.gaml.types.GamaListType.java, in plugin msi.gama.core, is part of the source code of the GAMA modeling and
+ * GamaStackType.java, in plugin irit.gama.switch, is part of the source code of the GAMA modeling and
  * simulation platform (v. 1.8.1)
  *
  * (c) 2007-2020 UMI 209 UMMISCO IRD/SU & Partners
@@ -8,6 +8,7 @@
  * Visit https://github.com/gama-platform/gama for license information and contacts.
  *
  ********************************************************************************************************/
+
 package irit.gaml.types;
 
 import java.awt.Color;
@@ -34,19 +35,22 @@ import irit.gama.precompiler.IConceptIrit;
 import irit.gama.precompiler.ITypeIrit;
 import irit.gama.util.GamaStack;
 
+/**
+ * Stack type in GAML
+ * 
+ * @author Jean-François Erdelyi
+ */
 @SuppressWarnings("rawtypes")
-@type(
-		name = IKeywordIrit.STACK, 
-		id = ITypeIrit.STACK, 
-		wraps = { GamaStack.class }, 
-		kind = ISymbolKind.Variable.CONTAINER, 
-		doc = {@doc("Stack")},
-		concept = { IConcept.TYPE, IConcept.CONTAINER, IConceptIrit.DEQUE, IConceptIrit.STACK })
+@type(name = IKeywordIrit.STACK, id = ITypeIrit.STACK, wraps = {
+		GamaStack.class }, kind = ISymbolKind.Variable.CONTAINER, doc = {
+				@doc("Stack") }, concept = { IConcept.TYPE, IConcept.CONTAINER, IConceptIrit.STACK })
 public class GamaStackType extends GamaContainerType<GamaStack> {
 
+	// ############################################
+	// Constructor
+
 	/**
-	 * TEMPORY CONSTRUCTOR
-	 * TODO REMOVE THIS
+	 * TEMPORY CONSTRUCTOR TODO REMOVE THIS
 	 */
 	public GamaStackType() {
 		id = ITypeIrit.STACK;
@@ -57,7 +61,10 @@ public class GamaStackType extends GamaContainerType<GamaStack> {
 		support = GamaStack.class;
 		varKind = ISymbolKind.Variable.CONTAINER;
 	}
-	
+
+	// ############################################
+	// Methods
+
 	/**
 	 * Cast data into GamaFifo
 	 */
@@ -116,9 +123,9 @@ public class GamaStackType extends GamaContainerType<GamaStack> {
 	 */
 	@Override
 	public GamaStack getDefault() {
-		return null;	
+		return null;
 	}
-	
+
 	/**
 	 * Get key type (integer -> index)
 	 */

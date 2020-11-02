@@ -8,7 +8,8 @@
  * Visit https://github.com/gama-platform/gama for license information and contacts.
  *
  ********************************************************************************************************/
-package irit.gama.util;
+
+package irit.gama.util.deque;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -33,7 +34,9 @@ import msi.gaml.types.IType;
 import msi.gaml.types.Types;
 
 /**
- * The Class GamaDeque.
+ * Deque used for Queue and Stack types
+ * 
+ * @author Jean-François Erdelyi
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class GamaDeque<T> extends ArrayDeque<T> implements IContainer<Integer, Object> {
@@ -71,7 +74,7 @@ public class GamaDeque<T> extends ArrayDeque<T> implements IContainer<Integer, O
 		type = contentsType;
 		addAll(values);
 	}
-	
+
 	/**
 	 * Constructor with values and type (Collection)
 	 */

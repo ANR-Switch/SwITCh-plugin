@@ -1,6 +1,6 @@
 /*******************************************************************************************************
  *
- * msi.gaml.types.GamaListType.java, in plugin msi.gama.core, is part of the source code of the GAMA modeling and
+ * GamaQueueType.java, in plugin irit.gama.switch, is part of the source code of the GAMA modeling and
  * simulation platform (v. 1.8.1)
  *
  * (c) 2007-2020 UMI 209 UMMISCO IRD/SU & Partners
@@ -8,6 +8,7 @@
  * Visit https://github.com/gama-platform/gama for license information and contacts.
  *
  ********************************************************************************************************/
+
 package irit.gaml.types;
 
 import java.awt.Color;
@@ -34,19 +35,22 @@ import irit.gama.precompiler.IConceptIrit;
 import irit.gama.precompiler.ITypeIrit;
 import irit.gama.util.GamaQueue;
 
+/**
+ * Queue type in GAML
+ * 
+ * @author Jean-François Erdelyi
+ */
 @SuppressWarnings("rawtypes")
-@type(
-		name = IKeywordIrit.QUEUE, 
-		id = ITypeIrit.QUEUE, 
-		wraps = { GamaQueue.class }, 
-		kind = ISymbolKind.Variable.CONTAINER, 
-		doc = {@doc("Queue")},
-		concept = { IConcept.TYPE, IConcept.CONTAINER, IConceptIrit.DEQUE, IConceptIrit.QUEUE })
+@type(name = IKeywordIrit.QUEUE, id = ITypeIrit.QUEUE, wraps = {
+		GamaQueue.class }, kind = ISymbolKind.Variable.CONTAINER, doc = {
+				@doc("Queue") }, concept = { IConcept.TYPE, IConcept.CONTAINER, IConceptIrit.QUEUE })
 public class GamaQueueType extends GamaContainerType<GamaQueue> {
 
+	// ############################################
+	// Constructor
+
 	/**
-	 * TEMPORY CONSTRUCTOR
-	 * TODO REMOVE THIS
+	 * TEMPORY CONSTRUCTOR TODO REMOVE THIS
 	 */
 	public GamaQueueType() {
 		id = ITypeIrit.QUEUE;
@@ -57,7 +61,10 @@ public class GamaQueueType extends GamaContainerType<GamaQueue> {
 		support = GamaQueue.class;
 		varKind = ISymbolKind.Variable.CONTAINER;
 	}
-	
+
+	// ############################################
+	// Methods
+
 	/**
 	 * Cast data into GamaQueue
 	 */
@@ -116,9 +123,9 @@ public class GamaQueueType extends GamaContainerType<GamaQueue> {
 	 */
 	@Override
 	public GamaQueue getDefault() {
-		return null;	
+		return null;
 	}
-	
+
 	/**
 	 * Get key type (integer -> index)
 	 */

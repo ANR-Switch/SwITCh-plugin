@@ -8,6 +8,7 @@
  * Visit https://github.com/gama-platform/gama for license information and contacts.
  *
  ********************************************************************************************************/
+
 package irit.gaml.statements;
 
 import msi.gama.common.interfaces.IKeyword;
@@ -34,59 +35,52 @@ import msi.gaml.types.IType;
 import irit.gama.common.interfaces.IKeywordIrit;
 import irit.gama.precompiler.IConceptIrit;
 import irit.gama.precompiler.ITypeIrit;
-import irit.gama.util.GamaDeque;
 import irit.gama.util.GamaQueue;
-import irit.gama.util.IDequeOperator;
+import irit.gama.util.deque.GamaDeque;
+import irit.gama.util.deque.IDequeOperator;
 
 /**
- * Push data into queue or stack
+ * Push statement used by Queue and Stack types
+ * 
+ * @author Jean-François Erdelyi
  */
-@symbol(
-		name = IKeywordIrit.PUSH, 
-		kind = ISymbolKind.SINGLE_STATEMENT, 
-		with_sequence = false,
-		concept = { IConceptIrit.STACK, IConceptIrit.QUEUE })
-@inside(
-		kinds = { ISymbolKind.BEHAVIOR, ISymbolKind.SEQUENCE_STATEMENT, ISymbolKind.LAYER },
-		symbols = IKeyword.CHART)
-@doc (
-		value = "Allows to add, i.e. to insert, a new element in a deque",
-		usages = { @usage (value = "The new element can be added either at the end of the deque",
-				examples = { 
-						@example (
-								value = "push expr to: stack;		// Add at the end",
-								isExecutable = false),
-						@example (
-								value = "push expr to: queue;		// Add at the end",
-								isExecutable = false) })})
-@facets(
-		value = { 
-			 @facet (
-				name = IKeyword.ITEM,
-				type = IType.NONE,
-				optional = false,
-				doc = { @doc ("any expression to add in the deque") }),
-			 @facet (
-				name = IKeyword.TO,
-				type = { ITypeIrit.STACK, ITypeIrit.QUEUE},
-				optional = false,
-				doc = { @doc ("the stack or queue") }), }, 
-		omissible = IKeyword.ITEM)
+@symbol(name = IKeywordIrit.PUSH, kind = ISymbolKind.SINGLE_STATEMENT, with_sequence = false, concept = {
+		IConceptIrit.STACK, IConceptIrit.QUEUE })
+@inside(kinds = { ISymbolKind.BEHAVIOR, ISymbolKind.SEQUENCE_STATEMENT, ISymbolKind.LAYER }, symbols = IKeyword.CHART)
+@doc(value = "Allows to add, i.e. to insert, a new element in a deque", usages = {
+		@usage(value = "The new element can be added either at the end of the deque", examples = {
+				@example(value = "push expr to: stack;		// Add at the end", isExecutable = false),
+				@example(value = "push expr to: queue;		// Add at the end", isExecutable = false) }) })
+@facets(value = {
+		@facet(name = IKeyword.ITEM, type = IType.NONE, optional = false, doc = {
+				@doc("any expression to add in the deque") }),
+		@facet(name = IKeyword.TO, type = { ITypeIrit.STACK, ITypeIrit.QUEUE }, optional = false, doc = {
+				@doc("the stack or queue") }), }, omissible = IKeyword.ITEM)
 @SuppressWarnings({ "rawtypes", "unused", "unchecked" })
 public class PushStatement extends AbstractStatement {
 
+	// ############################################
+	// Attributs
+
 	/**
-	 * Expressions from GAML code (from facets)
+	 * Expressions Item
 	 */
 	final IExpression itemExp;
+
+	/**
+	 * Expressions To
+	 */
 	final IExpression toExp;
-	
+
+	// ############################################
+	// Constructor
+
 	/**
 	 * Push constructor
 	 */
 	public PushStatement(IDescription desc) {
 		super(desc);
-		
+
 		// Get facets
 		itemExp = getFacet(IKeyword.ITEM);
 		toExp = getFacet(IKeyword.TO);
@@ -97,18 +91,21 @@ public class PushStatement extends AbstractStatement {
 		// Set name
 		setName("push to " + toName);
 	}
-	
+
+	// ############################################
+	// Methods
+
 	/**
 	 * Return object casted into GamaDeque if possible, null otherwise
 	 */
 	private GamaDeque identifyContainer(final IScope scope, final IExpression toExp) throws GamaRuntimeException {
 		final Object cont = toExp.value(scope);
-		if(cont instanceof GamaDeque) {
+		if (cont instanceof GamaDeque) {
 			return (GamaDeque) cont;
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Main fonction
 	 */
@@ -120,7 +117,7 @@ public class PushStatement extends AbstractStatement {
 		Object data = itemExp.value(scope);
 
 		// Check if deque and data are not null and insert data
-		if(to != null && data != null) {				
+		if (to != null && data != null) {
 			to.addLast(data);
 		}
 		return to;

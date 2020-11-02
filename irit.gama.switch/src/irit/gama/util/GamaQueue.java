@@ -8,20 +8,24 @@
  * Visit https://github.com/gama-platform/gama for license information and contacts.
  *
  ********************************************************************************************************/
+
 package irit.gama.util;
 
 import java.util.Collection;
 
 import msi.gama.runtime.IScope;
 import msi.gaml.types.IType;
-
+import irit.gama.util.deque.GamaDeque;
+import irit.gama.util.deque.IDequeOperator;
 import irit.gaml.types.TypesIrit;
 
 /**
- * The Class GamaQueue.
+ * Queue type used by GAML type
+ * 
+ * @author Jean-François Erdelyi
  */
 public class GamaQueue<T> extends GamaDeque<T> implements IDequeOperator<Object> {
-	
+
 	// ############################################
 	// Attributs
 
