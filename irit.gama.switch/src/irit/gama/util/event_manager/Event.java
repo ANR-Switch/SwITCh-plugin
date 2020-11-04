@@ -12,6 +12,7 @@
 package irit.gama.util.event_manager;
 
 import java.util.Comparator;
+import java.util.Random;
 
 import irit.gama.common.interfaces.IKeywordIrit;
 import msi.gama.runtime.IScope;
@@ -39,6 +40,11 @@ public class Event {
 	 * Event comparator -> priority queue
 	 */
 	public static class EventComparator implements Comparator<Event> {
+		/**
+		 * Random used if equals
+		 */
+		private Random rand = new Random();
+
 		@Override
 		public int compare(Event x, Event y) {
 			if (x.getDate().isSmallerThan(y.getDate(), true)) {
@@ -47,7 +53,8 @@ public class Event {
 			if (x.getDate().isGreaterThan(y.getDate(), true)) {
 				return 1;
 			}
-			return 0;
+			// In order to randomize if the event A and B are equals
+			return rand.nextInt(1) < 1 ? -1 : 1;
 		}
 	}
 
@@ -180,7 +187,7 @@ public class Event {
 	 * Execute the action
 	 */
 	public Object execute() {
-		if(date == null) {
+		if (date == null) {
 			date = scope.getClock().getCurrentDate();
 		}
 		scope.getAgent().setAttribute(IKeywordIrit.EVENT_DATE, date);

@@ -48,6 +48,21 @@ public class EventManager extends HashMap<String, EventQueue> {
 	 */
 	private boolean pastAllowed = true;
 
+	/**
+	 * If true past used the naive method
+	 */
+	private boolean naiveMethod = true;
+
+	/**
+	 * If true execution is actived
+	 */
+	private boolean executeActive = false;
+
+	/**
+	 * Inner copy
+	 */
+	HashMap<String, EventQueue> buffer;
+
 	// ############################################
 	// Methods
 
@@ -59,8 +74,8 @@ public class EventManager extends HashMap<String, EventQueue> {
 
 		for (Entry<String, EventQueue> entry : entrySet()) {
 			Event currentEvent = entry.getValue().peek();
-			
-			if(currentEvent == null) {
+
+			if (currentEvent == null) {
 				continue;
 			}
 
@@ -90,7 +105,12 @@ public class EventManager extends HashMap<String, EventQueue> {
 	 * Get or create a queue (sorted by species)
 	 */
 	private EventQueue getOrCreateQueue(String species) {
-		EventQueue ret = get(species);
+		EventQueue ret;
+		if (executeActive && !naiveMethod) {
+			ret = buffer.get(species);
+		} else {
+			ret = get(species);
+		}
 
 		// If not found, create and add a nex queue
 		if (ret == null) {
@@ -105,14 +125,42 @@ public class EventManager extends HashMap<String, EventQueue> {
 	 * Inner Register
 	 */
 	private Object innerRegister(Event event, GamaDate date, String species) {
-		if (date != null && !event.isTimeReached()) {
+		if (date == null || (event.isTimeReached() && naiveMethod)) {
+			return event.execute();
+		} else {
 			// Add event
 			EventQueue events = getOrCreateQueue(species);
 			events.add(event);
 			return ExecutionResult.withValue(true);
-		} else {
-			return event.execute();
 		}
+	}
+
+	/**
+	 * Inner Execute
+	 */
+	@SuppressWarnings("unchecked")
+	private GamaMap<String, Object> innerExecute(IScope scope) {
+		GamaMap<String, Object> results = (GamaMap<String, Object>) GamaMapFactory.create();
+
+		while ((size() > 0) && isTimeReached()) {
+			// Execute action
+			Event event = pop();
+			results.addValue(scope, new GamaPair<String, Object>(event.toString(), event.execute(),
+					Types.get(IType.STRING), Types.get(IType.NONE)));
+		}
+
+		return results;
+	}
+
+	/**
+	 * Copy buffer into queues
+	 */
+	private void copyBuffer() {
+		for (Entry<String, EventQueue> entry : buffer.entrySet()) {
+			EventQueue queue = getOrCreateQueue(entry.getKey());
+			queue.addAll(entry.getValue());
+		}
+		buffer.clear();
 	}
 
 	/**
@@ -193,11 +241,33 @@ public class EventManager extends HashMap<String, EventQueue> {
 	public Object execute(final IScope scope) throws GamaRuntimeException {
 		GamaMap<String, Object> results = (GamaMap<String, Object>) GamaMapFactory.create();
 
-		while ((size() > 0) && isTimeReached()) {
-			// Execute action
-			Event event = pop();
-			results.addValue(scope, new GamaPair<String, Object>(event.toString(), event.execute(),
-					Types.get(IType.STRING), Types.get(IType.NONE)));
+		// If non naive method
+		if (!naiveMethod) {
+			// Set the flag active to true (in order too save new event in the buffer)
+			executeActive = true;
+			// Partial result (one inner execute)
+			GamaMap<String, Object> partialResults;
+
+			// Do inner execute once
+			partialResults = innerExecute(scope);
+			// Add partial results in the final results
+			results.addValues(scope, partialResults);
+
+			// While until there is no new results
+			while (partialResults.size() > 0) {
+				// Add buffer to events queues
+				copyBuffer();
+				// Do inner execute
+				partialResults = innerExecute(scope);
+				// Add partial results in the final results
+				results.addValues(scope, partialResults);
+			}
+
+			// Set the flag to false (allow to save directly in the queues)
+			executeActive = false;
+		} else {
+			// Just inner execute
+			results = innerExecute(scope);
 		}
 
 		// Return result

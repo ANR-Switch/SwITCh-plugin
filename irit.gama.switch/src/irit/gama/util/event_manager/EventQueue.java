@@ -12,7 +12,6 @@
 package irit.gama.util.event_manager;
 
 import java.util.PriorityQueue;
-
 import irit.gama.util.event_manager.Event.EventComparator;
 import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
@@ -51,46 +50,6 @@ public class EventQueue extends PriorityQueue<Event> {
 	 */
 	public boolean isTimeReached() {
 		return peek().isTimeReached();
-	}
-
-	/**
-	 * Return true if this queue is greater than the other one. The time of the next
-	 * element is compared
-	 */
-	public boolean isGreaterThan(EventQueue y) {
-		if (size() > 0) {
-			if (y.size() > 0) { // 1 : 1
-				return peek().getDate().isGreaterThan(y.peek().getDate(), true);
-			} else { // 1 : 0
-				return false;
-			}
-		} else {
-			if (y.size() > 0) { // 0 : 1
-				return true;
-			} else { // 0 : 0
-				return false;
-			}
-		}
-	}
-
-	/**
-	 * Return true if this queue is smaller than the other one. The time of the next
-	 * element is compared
-	 */
-	public boolean isSmallerThan(EventQueue y) {
-		if (size() > 0) {
-			if (y.size() > 0) { // 1 : 1
-				return peek().getDate().isSmallerThan(y.peek().getDate(), true);
-			} else { // 1 : 0
-				return true;
-			}
-		} else {
-			if (y.size() > 0) { // 0 : 1
-				return false;
-			} else { // 0 : 0
-				return true;
-			}
-		}
 	}
 
 	// ############################################
