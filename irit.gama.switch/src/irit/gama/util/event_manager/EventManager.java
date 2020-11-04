@@ -11,6 +11,7 @@
 
 package irit.gama.util.event_manager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import msi.gama.runtime.ExecutionResult;
@@ -41,7 +42,7 @@ public class EventManager extends HashMap<String, EventQueue> {
 	/**
 	 * Best event this step
 	 */
-	private EventQueue bestQueue = null;
+	private Entry<String, EventQueue> bestEntry = null;
 
 	/**
 	 * If true past is allowed
@@ -81,7 +82,7 @@ public class EventManager extends HashMap<String, EventQueue> {
 
 			if ((bestEvent == null) || bestEvent.isGreaterThan(currentEvent)) {
 				bestEvent = currentEvent;
-				bestQueue = entry.getValue();
+				bestEntry = entry;
 			}
 		}
 	}
@@ -90,7 +91,14 @@ public class EventManager extends HashMap<String, EventQueue> {
 	 * Get and remove next event
 	 */
 	private Event pop() {
-		return bestQueue.poll();
+		Event e = bestEntry.getValue().poll();
+
+		// TODO Maybe -> if the queue is empty then remove it (architecture param ?)
+		// if (bestEntry.getValue().size() <= 0) {
+		// remove(bestEntry.getKey());
+		// }
+
+		return e;
 	}
 
 	/**
@@ -98,15 +106,15 @@ public class EventManager extends HashMap<String, EventQueue> {
 	 */
 	private boolean isTimeReached() {
 		prepareBestQueue();
-		return bestQueue.isTimeReached();
+		return bestEntry.getValue().isTimeReached();
 	}
 
 	/**
 	 * Get or create a queue (sorted by species)
 	 */
-	private EventQueue getOrCreateQueue(String species) {
+	private EventQueue getOrCreateQueue(String species, boolean fromBuffer) {
 		EventQueue ret;
-		if (executeActive && !naiveMethod) {
+		if (executeActive && fromBuffer) {
 			ret = buffer.get(species);
 		} else {
 			ret = get(species);
@@ -115,7 +123,11 @@ public class EventManager extends HashMap<String, EventQueue> {
 		// If not found, create and add a nex queue
 		if (ret == null) {
 			ret = new EventQueue(new Event.EventComparator());
-			put(species, ret);
+			if (executeActive && fromBuffer) {
+				buffer.put(species, ret);
+			} else {
+				put(species, ret);
+			}
 		}
 
 		return ret;
@@ -129,7 +141,7 @@ public class EventManager extends HashMap<String, EventQueue> {
 			return event.execute();
 		} else {
 			// Add event
-			EventQueue events = getOrCreateQueue(species);
+			EventQueue events = getOrCreateQueue(species, !naiveMethod);
 			events.add(event);
 			return ExecutionResult.withValue(true);
 		}
@@ -157,8 +169,8 @@ public class EventManager extends HashMap<String, EventQueue> {
 	 */
 	private void copyBuffer() {
 		for (Entry<String, EventQueue> entry : buffer.entrySet()) {
-			EventQueue queue = getOrCreateQueue(entry.getKey());
-			queue.addAll(entry.getValue());
+			EventQueue queue = getOrCreateQueue(entry.getKey(), false);
+			queue.addAll(new ArrayList<Event>(entry.getValue()));
 		}
 		buffer.clear();
 	}
@@ -217,6 +229,20 @@ public class EventManager extends HashMap<String, EventQueue> {
 		pastAllowed = value;
 	}
 
+	/**
+	 * Return true if use naive method
+	 */
+	public boolean isNaiveMethod() {
+		return naiveMethod;
+	}
+
+	/**
+	 * Set if use naive method
+	 */
+	public void setNaiveMethod(Boolean value) {
+		naiveMethod = value;
+	}
+
 	// ############################################
 	// Register and execute
 
@@ -245,6 +271,7 @@ public class EventManager extends HashMap<String, EventQueue> {
 		if (!naiveMethod) {
 			// Set the flag active to true (in order too save new event in the buffer)
 			executeActive = true;
+			buffer = new HashMap<>();
 			// Partial result (one inner execute)
 			GamaMap<String, Object> partialResults;
 
