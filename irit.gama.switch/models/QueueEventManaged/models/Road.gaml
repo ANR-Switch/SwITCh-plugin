@@ -46,8 +46,6 @@ global {
  * Event manager species
  */
 species manager control: event_manager {
-	// If true allow event in the past
-	bool allow_past <- false;
 
 	// Reflex to write the size of event queues
 	reflex write_size {

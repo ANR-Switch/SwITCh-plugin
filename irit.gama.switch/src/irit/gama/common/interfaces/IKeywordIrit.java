@@ -42,6 +42,4 @@ public interface IKeywordIrit {
 
 	public static final String SCHEDULING = "scheduling";
 
-	public static final String ALLOW_PAST = "allow_past";
-	public static final String NAIVE = "naive";
 }

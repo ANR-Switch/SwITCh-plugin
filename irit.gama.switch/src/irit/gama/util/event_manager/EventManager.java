@@ -11,7 +11,6 @@
 
 package irit.gama.util.event_manager;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import msi.gama.runtime.ExecutionResult;
@@ -31,7 +30,7 @@ import msi.gaml.types.Types;
 public class EventManager extends HashMap<String, EventQueue> {
 
 	// ############################################
-	// Attributs
+	// Attributes
 
 	/**
 	 * The serializable class EventQueues does not declare a static final
@@ -45,24 +44,14 @@ public class EventManager extends HashMap<String, EventQueue> {
 	private Entry<String, EventQueue> bestEntry = null;
 
 	/**
-	 * If true past is allowed
-	 */
-	private boolean pastAllowed = true;
-
-	/**
-	 * If true past used the naive method
-	 */
-	private boolean naiveMethod = true;
-
-	/**
-	 * If true execution is actived
+	 * If true execution is active
 	 */
 	private boolean executeActive = false;
 
 	/**
-	 * Inner copy
+	 * The last event executed
 	 */
-	HashMap<String, EventQueue> buffer;
+	Event lastEvent = null;
 
 	// ############################################
 	// Methods
@@ -112,22 +101,13 @@ public class EventManager extends HashMap<String, EventQueue> {
 	/**
 	 * Get or create a queue (sorted by species)
 	 */
-	private EventQueue getOrCreateQueue(String species, boolean fromBuffer) {
-		EventQueue ret;
-		if (executeActive && fromBuffer) {
-			ret = buffer.get(species);
-		} else {
-			ret = get(species);
-		}
+	private EventQueue getOrCreateQueue(String species) {
+		EventQueue ret = get(species);
 
 		// If not found, create and add a nex queue
 		if (ret == null) {
 			ret = new EventQueue(new Event.EventComparator());
-			if (executeActive && fromBuffer) {
-				buffer.put(species, ret);
-			} else {
-				put(species, ret);
-			}
+			put(species, ret);
 		}
 
 		return ret;
@@ -136,12 +116,19 @@ public class EventManager extends HashMap<String, EventQueue> {
 	/**
 	 * Inner Register
 	 */
-	private Object innerRegister(Event event, GamaDate date, String species) {
-		if (date == null || (event.isTimeReached() && naiveMethod)) {
+	private Object innerRegister(Event event, String species) throws GamaRuntimeException {
+		if (executeActive) {
+			if (lastEvent.getDate().isGreaterThan(event.getDate(), true)) {
+				throw GamaRuntimeException.warning("Past is not allowed " + species + " at " + event.getDate(),
+						event.getScope());
+			}
+		}
+
+		if (event.getDate() == null) {
 			return event.execute();
 		} else {
 			// Add event
-			EventQueue events = getOrCreateQueue(species, !naiveMethod);
+			EventQueue events = getOrCreateQueue(species);
 			events.add(event);
 			return ExecutionResult.withValue(true);
 		}
@@ -151,28 +138,19 @@ public class EventManager extends HashMap<String, EventQueue> {
 	 * Inner Execute
 	 */
 	@SuppressWarnings("unchecked")
-	private GamaMap<String, Object> innerExecute(IScope scope) {
+	private GamaMap<String, Object> innerExecute(IScope scope) throws GamaRuntimeException {
 		GamaMap<String, Object> results = (GamaMap<String, Object>) GamaMapFactory.create();
 
+		executeActive = true;
 		while ((size() > 0) && isTimeReached()) {
 			// Execute action
-			Event event = pop();
-			results.addValue(scope, new GamaPair<String, Object>(event.toString(), event.execute(),
+			lastEvent = pop();
+			results.addValue(scope, new GamaPair<String, Object>(lastEvent.toString(), lastEvent.execute(),
 					Types.get(IType.STRING), Types.get(IType.NONE)));
 		}
+		executeActive = false;
 
 		return results;
-	}
-
-	/**
-	 * Copy buffer into queues
-	 */
-	private void copyBuffer() {
-		for (Entry<String, EventQueue> entry : buffer.entrySet()) {
-			EventQueue queue = getOrCreateQueue(entry.getKey(), false);
-			queue.addAll(new ArrayList<Event>(entry.getValue()));
-		}
-		buffer.clear();
 	}
 
 	/**
@@ -215,34 +193,6 @@ public class EventManager extends HashMap<String, EventQueue> {
 		return ret;
 	}
 
-	/**
-	 * Return true if past is alowed
-	 */
-	public boolean isPastAllowed() {
-		return pastAllowed;
-	}
-
-	/**
-	 * Set if past is allowed
-	 */
-	public void setPastAllowed(Boolean value) {
-		pastAllowed = value;
-	}
-
-	/**
-	 * Return true if use naive method
-	 */
-	public boolean isNaiveMethod() {
-		return naiveMethod;
-	}
-
-	/**
-	 * Set if use naive method
-	 */
-	public void setNaiveMethod(Boolean value) {
-		naiveMethod = value;
-	}
-
 	// ############################################
 	// Register and execute
 
@@ -252,52 +202,16 @@ public class EventManager extends HashMap<String, EventQueue> {
 	public Object register(final IScope scope, final String species, final ActionDescription action,
 			final GamaMap<String, Object> args, final GamaDate date) throws GamaRuntimeException {
 
-		if (!pastAllowed && (date != null && scope.getClock().getCurrentDate().isGreaterThan(date, true))) {
-			throw GamaRuntimeException.warning("Past is not allowed " + species + " at " + date, scope);
-		}
-
 		// Create a new event
-		return innerRegister(new Event(scope, species, action, args, date), date, species);
+		return innerRegister(new Event(scope, species, action, args, date), species);
 	}
 
 	/**
 	 * Execute the next events
 	 */
-	@SuppressWarnings("unchecked")
 	public Object execute(final IScope scope) throws GamaRuntimeException {
-		GamaMap<String, Object> results = (GamaMap<String, Object>) GamaMapFactory.create();
-
-		// If non naive method
-		if (!naiveMethod) {
-			// Set the flag active to true (in order too save new event in the buffer)
-			executeActive = true;
-			buffer = new HashMap<>();
-			// Partial result (one inner execute)
-			GamaMap<String, Object> partialResults;
-
-			// Do inner execute once
-			partialResults = innerExecute(scope);
-			// Add partial results in the final results
-			results.addValues(scope, partialResults);
-
-			// While until there is no new results
-			while (partialResults.size() > 0) {
-				// Add buffer to events queues
-				copyBuffer();
-				// Do inner execute
-				partialResults = innerExecute(scope);
-				// Add partial results in the final results
-				results.addValues(scope, partialResults);
-			}
-
-			// Set the flag to false (allow to save directly in the queues)
-			executeActive = false;
-		} else {
-			// Just inner execute
-			results = innerExecute(scope);
-		}
 
 		// Return result
-		return results;
+		return innerExecute(scope);
 	}
 }

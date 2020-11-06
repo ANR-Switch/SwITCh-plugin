@@ -67,7 +67,7 @@ public class Event {
 	private GamaDate date;
 
 	/**
-	 * Simualatio scope
+	 * Simualation scope
 	 */
 	private IScope scope;
 
@@ -167,6 +167,13 @@ public class Event {
 	 */
 	public GamaDate getDate() {
 		return date;
+	}
+
+	/**
+	 * Get date
+	 */
+	public IScope getScope() {
+		return scope;
 	}
 
 	/**

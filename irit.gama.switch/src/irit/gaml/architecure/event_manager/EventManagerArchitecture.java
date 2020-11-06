@@ -17,7 +17,6 @@ import msi.gama.common.interfaces.IKeyword;
 import msi.gama.metamodel.agent.IAgent;
 import msi.gama.precompiler.GamlAnnotations.doc;
 import msi.gama.precompiler.GamlAnnotations.getter;
-import msi.gama.precompiler.GamlAnnotations.setter;
 import msi.gama.precompiler.GamlAnnotations.skill;
 import msi.gama.precompiler.GamlAnnotations.variable;
 import msi.gama.precompiler.GamlAnnotations.vars;
@@ -36,9 +35,7 @@ import msi.gaml.types.IType;
  * @author Jean-François Erdelyi
  */
 @vars({ @variable(name = IKeyword.SIZE, type = IType.INT, doc = @doc("Return the size of the all queues")),
-		@variable(name = IKeywordIrit.SIZE_BY_SPECIES, type = IType.MAP, doc = @doc("Return the size of the all queues (sorted by name)")),
-		@variable(name = IKeywordIrit.ALLOW_PAST, type = IType.BOOL, init = "true", doc = @doc("If true allow date in the past, you can set variable delta_date")),
-		@variable(name = IKeywordIrit.NAIVE, type = IType.BOOL, init = "true", doc = @doc("If true use the naive method (execute directly event if the date is in the past)")) })
+		@variable(name = IKeywordIrit.SIZE_BY_SPECIES, type = IType.MAP, doc = @doc("Return the size of the all queues (sorted by name)")) })
 @skill(name = IKeywordIrit.EVENT_MANAGER, concept = { IConcept.BEHAVIOR,
 		IConcept.ARCHITECTURE }, doc = @doc("Event manager behavior"))
 public class EventManagerArchitecture extends ReflexArchitecture {
@@ -62,48 +59,6 @@ public class EventManagerArchitecture extends ReflexArchitecture {
 		return getCurrentManagerIfExists(agent).sizeBySpecies();
 	}
 
-	/**
-	 * Get size
-	 */
-	@getter(IKeywordIrit.ALLOW_PAST)
-	public Boolean getAllowPast(final IAgent agent) {
-		return getCurrentManagerIfExists(agent).isPastAllowed();
-	}
-
-	/**
-	 * Set allow past
-	 */
-	@setter(IKeywordIrit.ALLOW_PAST)
-	public void setAllowPast(final IAgent agent, final Boolean value) {
-		agent.setAttribute(IKeywordIrit.ALLOW_PAST, value);
-		// If the manager is set then set the object value
-		EventManager manager = getCurrentManager(agent);
-		if (manager != null) {
-			manager.setPastAllowed(value);
-		}
-	}
-
-	/**
-	 * Get naive method
-	 */
-	@getter(IKeywordIrit.NAIVE)
-	public Boolean getNaive(final IAgent agent) {
-		return getCurrentManagerIfExists(agent).isNaiveMethod();
-	}
-
-	/**
-	 * Set method
-	 */
-	@setter(IKeywordIrit.NAIVE)
-	public void setNaive(final IAgent agent, final Boolean value) {
-		agent.setAttribute(IKeywordIrit.NAIVE, value);
-		// If the manager is set then set the object value
-		EventManager manager = getCurrentManager(agent);
-		if (manager != null) {
-			manager.setNaiveMethod(value);
-		}
-	}
-
 	// ############################################
 	// Methods
 
@@ -123,11 +78,6 @@ public class EventManagerArchitecture extends ReflexArchitecture {
 	public boolean init(final IScope scope) throws GamaRuntimeException {
 		final IAgent agent = getCurrentAgent(scope);
 		final EventManager manager = new EventManager();
-
-		Boolean allowPast = (Boolean) agent.getAttribute(IKeywordIrit.ALLOW_PAST);
-		manager.setPastAllowed(allowPast);
-		Boolean isNaiveMethod = (Boolean) agent.getAttribute(IKeywordIrit.NAIVE);
-		manager.setNaiveMethod(isNaiveMethod);
 
 		agent.setAttribute(IKeywordIrit.EVENT_MANAGER, manager);
 		return true;
