@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.Random;
 
 import irit.gama.common.interfaces.IKeywordIrit;
+import msi.gama.metamodel.agent.IAgent;
 import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
 import msi.gama.util.GamaDate;
@@ -59,7 +60,7 @@ public class Event {
 	}
 
 	// ############################################
-	// Attributs
+	// Attributes
 
 	/**
 	 * The execution date
@@ -67,7 +68,7 @@ public class Event {
 	private GamaDate date;
 
 	/**
-	 * Simualation scope
+	 * Simulation scope
 	 */
 	private IScope scope;
 
@@ -86,6 +87,11 @@ public class Event {
 	 */
 	private Arguments arguments;
 
+	/**
+	 * Referred agent
+	 */
+	private IAgent referredAgent;
+
 	// ############################################
 	// Constructor
 
@@ -93,10 +99,11 @@ public class Event {
 	 * Create a new event with action and Arguments as map
 	 */
 	public Event(IScope scope, String species, ActionDescription action, final GamaMap<String, Object> args,
-			GamaDate date) {
+			GamaDate date, IAgent referredAgent) {
 
 		this.scope = scope.copy("Later");
 		this.species = species;
+		this.referredAgent = referredAgent;
 
 		// Get arguments
 		arguments = action.createCompiledArgs().resolveAgainst(scope);
@@ -198,6 +205,7 @@ public class Event {
 			date = scope.getClock().getCurrentDate();
 		}
 		scope.getAgent().setAttribute(IKeywordIrit.EVENT_DATE, date);
+		scope.getAgent().setAttribute(IKeywordIrit.REFER_TO, referredAgent);
 		return scope.execute(action, getRuntimeArgs()).getValue();
 	}
 

@@ -72,7 +72,7 @@ public class EventManagerArchitecture extends ReflexArchitecture {
 	}
 
 	/**
-	 * Initilization
+	 * Initialization
 	 */
 	@Override
 	public boolean init(final IScope scope) throws GamaRuntimeException {
@@ -103,7 +103,7 @@ public class EventManagerArchitecture extends ReflexArchitecture {
 	}
 
 	/**
-	 * Get current manager by agent. throw exception if doest not exists
+	 * Get current manager by agent. throw exception if does not exists
 	 */
 	protected EventManager getCurrentManagerIfExists(final IAgent agent) throws GamaRuntimeException {
 		EventManager manager = getCurrentManager(agent);
@@ -117,13 +117,13 @@ public class EventManagerArchitecture extends ReflexArchitecture {
 	 * Internal register (used by "scheduling" skill)
 	 */
 	public Object register(final IScope scope, final String species, final ActionDescription action,
-			final GamaMap<String, Object> args, final GamaDate date) throws GamaRuntimeException {
+			final GamaMap<String, Object> args, final GamaDate date, final IAgent referredAgent) throws GamaRuntimeException {
 
 		IAgent agent = (IAgent) getCurrentAgent(scope).getAttribute(IKeywordIrit.EVENT_MANAGER);
 		if (scope.interrupted() || agent == null) {
 			return null;
 		}
 
-		return getCurrentManagerIfExists(agent).register(scope, species, action, args, date);
+		return getCurrentManagerIfExists(agent).register(scope, species, action, args, date, referredAgent);
 	}
 }

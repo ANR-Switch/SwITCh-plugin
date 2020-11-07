@@ -13,6 +13,7 @@ package irit.gama.util.event_manager;
 
 import java.util.HashMap;
 
+import msi.gama.metamodel.agent.IAgent;
 import msi.gama.runtime.ExecutionResult;
 import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
@@ -117,16 +118,15 @@ public class EventManager extends HashMap<String, EventQueue> {
 	 * Inner Register
 	 */
 	private Object innerRegister(Event event, String species) throws GamaRuntimeException {
-		if (executeActive) {
-			if (lastEvent.getDate().isGreaterThan(event.getDate(), true)) {
-				throw GamaRuntimeException.warning("Past is not allowed " + species + " at " + event.getDate(),
-						event.getScope());
-			}
-		}
-
 		if (event.getDate() == null) {
 			return event.execute();
 		} else {
+			if (executeActive) {
+				if (lastEvent.getDate().isGreaterThan(event.getDate(), true)) {
+					throw GamaRuntimeException.warning("Past is not allowed " + species + " at " + event.getDate(),
+							event.getScope());
+				}
+			}
 			// Add event
 			EventQueue events = getOrCreateQueue(species);
 			events.add(event);
@@ -200,10 +200,11 @@ public class EventManager extends HashMap<String, EventQueue> {
 	 * Register with action and arguments as map
 	 */
 	public Object register(final IScope scope, final String species, final ActionDescription action,
-			final GamaMap<String, Object> args, final GamaDate date) throws GamaRuntimeException {
+			final GamaMap<String, Object> args, final GamaDate date, final IAgent referredAgent)
+			throws GamaRuntimeException {
 
 		// Create a new event
-		return innerRegister(new Event(scope, species, action, args, date), species);
+		return innerRegister(new Event(scope, species, action, args, date, referredAgent), species);
 	}
 
 	/**

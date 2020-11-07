@@ -12,12 +12,8 @@
 package irit.gama.util.event_manager;
 
 import java.util.PriorityQueue;
+
 import irit.gama.util.event_manager.Event.EventComparator;
-import msi.gama.runtime.IScope;
-import msi.gama.runtime.exceptions.GamaRuntimeException;
-import msi.gama.util.GamaDate;
-import msi.gama.util.GamaMap;
-import msi.gaml.descriptions.ActionDescription;
 
 /**
  * Event queue used by the event manager (one queue by species)
@@ -27,7 +23,7 @@ import msi.gaml.descriptions.ActionDescription;
 public class EventQueue extends PriorityQueue<Event> {
 
 	// ############################################
-	// Attributs
+	// Attributes
 
 	/**
 	 * The serializable class EventQueue does not declare a static final
@@ -50,25 +46,5 @@ public class EventQueue extends PriorityQueue<Event> {
 	 */
 	public boolean isTimeReached() {
 		return peek().isTimeReached();
-	}
-
-	// ############################################
-	// Register and execute
-
-	/**
-	 * Register with action and arguments as map
-	 */
-	public void register(final IScope scope, final String species, final ActionDescription action,
-			final GamaMap<String, Object> args, final GamaDate date) throws GamaRuntimeException {
-		// Create a new event
-		add(new Event(scope, species, action, args, date));
-	}
-
-	/**
-	 * Pop and execute the next event
-	 */
-	public Object execute() throws GamaRuntimeException {
-		// Execute and return result
-		return super.poll().execute();
 	}
 }

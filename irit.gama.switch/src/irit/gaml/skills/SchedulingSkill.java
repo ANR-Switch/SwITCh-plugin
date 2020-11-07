@@ -39,7 +39,8 @@ import msi.gaml.types.IType;
  */
 @vars({ @variable(name = IKeywordIrit.EVENT_MANAGER, type = IType.AGENT, doc = {
 		@doc("The event manager, must be defined in another species with \"control: event_manager\"") }),
-		@variable(name = IKeywordIrit.EVENT_DATE, type = IType.DATE, doc = { @doc("The date of the next event") }) })
+		@variable(name = IKeywordIrit.EVENT_DATE, type = IType.DATE, doc = { @doc("The date of the previous event") }),
+		@variable(name = IKeywordIrit.REFER_TO, type = IType.AGENT, doc = { @doc("The agent to refer when the event is triggered") }) })
 @skill(name = IKeywordIrit.SCHEDULING, concept = { IKeywordIrit.SCHEDULING, IConcept.SKILL }, internal = true)
 public class SchedulingSkill extends Skill {
 
@@ -70,13 +71,22 @@ public class SchedulingSkill extends Skill {
 		return (GamaDate) agent.getAttribute(IKeywordIrit.EVENT_DATE);
 	}
 
+	@getter(IKeywordIrit.REFER_TO)
+	public IAgent getReferTo(final IAgent agent) {
+		if (agent == null) {
+			return null;
+		}
+		return (IAgent) agent.getAttribute(IKeywordIrit.REFER_TO);
+	}
+
 	// ############################################
 	// Action of architecture
 
 	@action(name = "later", args = {
 			@arg(name = IKeywordIrit.THE_ACTION, type = IType.ID, optional = false, doc = @doc("the name of an action or a primitive")),
 			@arg(name = IKeywordIrit.WITH_ARGUMENTS, type = IType.MAP, optional = true, doc = @doc("a map expression containing the parameters of the action")),
-			@arg(name = IKeywordIrit.AT, type = IType.DATE, optional = true, doc = @doc("call date")) }, doc = @doc(examples = {
+			@arg(name = IKeywordIrit.AT, type = IType.DATE, optional = true, doc = @doc("call date")),
+			@arg(name = IKeywordIrit.REFER_TO, type = IType.AGENT, optional = true, doc = @doc("define the agent to refer, for example the caller")), }, doc = @doc(examples = {
 					@example("do later execute: my_action arguments: map((\"test\"::2)) date: starting_date") }, value = "Do action when the date is reached."))
 	@SuppressWarnings("unchecked")
 	public Object register(final IScope scope) throws GamaRuntimeException {
@@ -88,6 +98,8 @@ public class SchedulingSkill extends Skill {
 		ActionDescription action = (ActionDescription) scope.getArg(IKeywordIrit.THE_ACTION, IType.ID);
 		// Get arguments
 		GamaMap<String, Object> args = (GamaMap<String, Object>) scope.getArg(IKeywordIrit.WITH_ARGUMENTS, IType.MAP);
+		// Get refer to agent
+		IAgent referredAgent = (IAgent) scope.getArg(IKeywordIrit.REFER_TO, IType.AGENT);
 
 		// Get manager
 		IAgent manager = (IAgent) scope.getAgent().getAttribute(IKeywordIrit.EVENT_MANAGER);
@@ -103,7 +115,6 @@ public class SchedulingSkill extends Skill {
 			throw GamaRuntimeException
 					.error("The manager must use the control \"event_manager\" to execute the action \"later\"", scope);
 		}
-
-		return eventSkill.register(scope, species, action, args, date);
+		return eventSkill.register(scope, species, action, args, date, referredAgent);
 	}
 }
