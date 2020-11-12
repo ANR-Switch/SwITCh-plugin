@@ -14,8 +14,11 @@ package irit.gaml.types;
 import java.awt.Color;
 import java.util.Collection;
 
+import irit.gama.common.interfaces.IKeywordIrit;
+import irit.gama.precompiler.IConceptIrit;
+import irit.gama.precompiler.ITypeIrit;
+import irit.gama.util.GamaStack;
 import msi.gama.common.util.StringUtils;
-import msi.gama.metamodel.population.IPopulation;
 import msi.gama.metamodel.shape.GamaPoint;
 import msi.gama.precompiler.GamlAnnotations.doc;
 import msi.gama.precompiler.GamlAnnotations.type;
@@ -29,11 +32,6 @@ import msi.gaml.expressions.IExpression;
 import msi.gaml.types.GamaContainerType;
 import msi.gaml.types.IType;
 import msi.gaml.types.Types;
-
-import irit.gama.common.interfaces.IKeywordIrit;
-import irit.gama.precompiler.IConceptIrit;
-import irit.gama.precompiler.ITypeIrit;
-import irit.gama.util.GamaStack;
 
 /**
  * Stack type in GAML
@@ -91,9 +89,6 @@ public class GamaStackType extends GamaContainerType<GamaStack> {
 		}
 
 		if (obj instanceof IContainer) {
-			if (obj instanceof IPopulation) {
-				return new GamaStack(contentsType, ((IPopulation) obj).listValue(scope, contentsType, true));
-			}
 			return new GamaStack(contentsType, ((IContainer) obj).listValue(scope, contentsType, true));
 		}
 

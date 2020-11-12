@@ -15,7 +15,6 @@ import java.awt.Color;
 import java.util.Collection;
 
 import msi.gama.common.util.StringUtils;
-import msi.gama.metamodel.population.IPopulation;
 import msi.gama.metamodel.shape.GamaPoint;
 import msi.gama.precompiler.GamlAnnotations.doc;
 import msi.gama.precompiler.GamlAnnotations.type;
@@ -91,9 +90,6 @@ public class GamaQueueType extends GamaContainerType<GamaQueue> {
 		}
 
 		if (obj instanceof IContainer) {
-			if (obj instanceof IPopulation) {
-				return new GamaQueue(contentsType, ((IPopulation) obj).listValue(scope, contentsType, true));
-			}
 			return new GamaQueue(contentsType, ((IContainer) obj).listValue(scope, contentsType, true));
 		}
 

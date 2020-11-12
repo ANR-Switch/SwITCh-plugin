@@ -28,7 +28,7 @@ import msi.gaml.types.Types;
 /**
  * A queue of event queue
  */
-public class EventManager extends HashMap<String, EventQueue> {
+public class EventManager extends HashMap<IAgent, EventQueue> {
 
 	// ############################################
 	// Attributes
@@ -42,7 +42,7 @@ public class EventManager extends HashMap<String, EventQueue> {
 	/**
 	 * Best event this step
 	 */
-	private Entry<String, EventQueue> bestEntry = null;
+	private Entry<IAgent, EventQueue> bestEntry = null;
 
 	/**
 	 * If true execution is active
@@ -63,7 +63,7 @@ public class EventManager extends HashMap<String, EventQueue> {
 	private void prepareBestQueue() {
 		Event bestEvent = null;
 
-		for (Entry<String, EventQueue> entry : entrySet()) {
+		for (Entry<IAgent, EventQueue> entry : entrySet()) {
 			Event currentEvent = entry.getValue().peek();
 
 			if (currentEvent == null) {
@@ -83,10 +83,9 @@ public class EventManager extends HashMap<String, EventQueue> {
 	private Event pop() {
 		Event e = bestEntry.getValue().poll();
 
-		// TODO Maybe -> if the queue is empty then remove it (architecture param ?)
-		// if (bestEntry.getValue().size() <= 0) {
-		// remove(bestEntry.getKey());
-		// }
+		if (bestEntry.getValue().size() <= 0) {
+			remove(bestEntry.getKey());
+		}
 
 		return e;
 	}
@@ -100,15 +99,15 @@ public class EventManager extends HashMap<String, EventQueue> {
 	}
 
 	/**
-	 * Get or create a queue (sorted by species)
+	 * Get or create a queue (sorted by agent)
 	 */
-	private EventQueue getOrCreateQueue(String species) {
-		EventQueue ret = get(species);
+	private EventQueue getOrCreateQueue(IAgent agent) {
+		EventQueue ret = get(agent);
 
-		// If not found, create and add a nex queue
+		// If not found, create and add a next queue
 		if (ret == null) {
 			ret = new EventQueue(new Event.EventComparator());
-			put(species, ret);
+			put(agent, ret);
 		}
 
 		return ret;
@@ -117,18 +116,18 @@ public class EventManager extends HashMap<String, EventQueue> {
 	/**
 	 * Inner Register
 	 */
-	private Object innerRegister(Event event, String species) throws GamaRuntimeException {
+	private Object innerRegister(Event event, IAgent agent) throws GamaRuntimeException {
 		if (event.getDate() == null) {
 			return event.execute();
 		} else {
 			if (executeActive) {
 				if (lastEvent.getDate().isGreaterThan(event.getDate(), true)) {
-					throw GamaRuntimeException.warning("Past is not allowed " + species + " at " + event.getDate(),
+					throw GamaRuntimeException.warning("Past is not allowed " + agent.getName() + " at " + event.getDate(),
 							event.getScope());
 				}
 			}
 			// Add event
-			EventQueue events = getOrCreateQueue(species);
+			EventQueue events = getOrCreateQueue(agent);
 			events.add(event);
 			return ExecutionResult.withValue(true);
 		}
@@ -152,13 +151,21 @@ public class EventManager extends HashMap<String, EventQueue> {
 
 		return results;
 	}
+	
+	/**
+	 * Inner Clear
+	 */
+	private void innerClear(IScope scope, final IAgent caller) throws GamaRuntimeException {
+		get(caller).clear();
+		remove(caller);
+	}
 
 	/**
 	 * Clear all priority queue
 	 */
 	@Override
 	public void clear() {
-		for (Entry<String, EventQueue> entry : entrySet()) {
+		for (Entry<IAgent, EventQueue> entry : entrySet()) {
 			entry.getValue().clear();
 		}
 
@@ -166,13 +173,13 @@ public class EventManager extends HashMap<String, EventQueue> {
 	}
 
 	/**
-	 * Get size by species
+	 * Get size by agent
 	 */
 	@SuppressWarnings("unchecked")
-	public GamaMap<String, Integer> sizeBySpecies() {
-		GamaMap<String, Integer> ret = (GamaMap<String, Integer>) GamaMapFactory.create();
+	public GamaMap<IAgent, Integer> sizeByAgent() {
+		GamaMap<IAgent, Integer> ret = (GamaMap<IAgent, Integer>) GamaMapFactory.create();
 
-		for (Entry<String, EventQueue> entry : entrySet()) {
+		for (Entry<IAgent, EventQueue> entry : entrySet()) {
 			ret.put(entry.getKey(), entry.getValue().size());
 		}
 
@@ -186,7 +193,7 @@ public class EventManager extends HashMap<String, EventQueue> {
 	public int size() {
 		int ret = 0;
 
-		for (Entry<String, EventQueue> entry : entrySet()) {
+		for (Entry<IAgent, EventQueue> entry : entrySet()) {
 			ret += entry.getValue().size();
 		}
 
@@ -194,25 +201,32 @@ public class EventManager extends HashMap<String, EventQueue> {
 	}
 
 	// ############################################
-	// Register and execute
+	// Register, execute and clear
 
 	/**
 	 * Register with action and arguments as map
 	 */
-	public Object register(final IScope scope, final String species, final ActionDescription action,
+	public Object register(final IScope scope, final IAgent caller, final ActionDescription action,
 			final GamaMap<String, Object> args, final GamaDate date, final IAgent referredAgent)
 			throws GamaRuntimeException {
-
 		// Create a new event
-		return innerRegister(new Event(scope, species, action, args, date, referredAgent), species);
+		return innerRegister(new Event(scope, caller, action, args, date, referredAgent), caller);
 	}
 
 	/**
 	 * Execute the next events
 	 */
 	public Object execute(final IScope scope) throws GamaRuntimeException {
-
 		// Return result
 		return innerExecute(scope);
+	}
+	
+	
+	/**
+	 * Execute the next events
+	 */
+	public void clear(final IScope scope, final IAgent caller) throws GamaRuntimeException {
+		// Clear
+		innerClear(scope, caller);
 	}
 }

@@ -242,7 +242,7 @@ public class GamaDeque<T> extends ArrayDeque<T> implements IContainer<Integer, O
 	 */
 	@Override
 	public IList listValue(IScope scope, IType<?> contentType, boolean copy) {
-		return GamaListFactory.wrap(contentType, contentType.cast(scope, toArray(), null, copy));
+		return GamaListFactory.wrap(contentType, toArray());
 	}
 
 	/**

@@ -40,7 +40,9 @@ import msi.gaml.types.IType;
 @vars({ @variable(name = IKeywordIrit.EVENT_MANAGER, type = IType.AGENT, doc = {
 		@doc("The event manager, must be defined in another species with \"control: event_manager\"") }),
 		@variable(name = IKeywordIrit.EVENT_DATE, type = IType.DATE, doc = { @doc("The date of the previous event") }),
-		@variable(name = IKeywordIrit.REFER_TO, type = IType.AGENT, doc = { @doc("The agent to refer when the event is triggered") }) })
+		@variable(name = IKeywordIrit.REFER_TO, type = IType.AGENT, doc = {
+				@doc("The agent to refer when the event is triggered") }),
+		@variable(name = IKeywordIrit.CALLER, type = IType.AGENT, doc = { @doc("Caller agent") }) })
 @skill(name = IKeywordIrit.SCHEDULING, concept = { IKeywordIrit.SCHEDULING, IConcept.SKILL }, internal = true)
 public class SchedulingSkill extends Skill {
 
@@ -79,21 +81,29 @@ public class SchedulingSkill extends Skill {
 		return (IAgent) agent.getAttribute(IKeywordIrit.REFER_TO);
 	}
 
+	@getter(IKeywordIrit.CALLER)
+	public IAgent getCaller(final IAgent agent) {
+		if (agent == null) {
+			return null;
+		}
+		return (IAgent) agent.getAttribute(IKeywordIrit.CALLER);
+	}
+
 	// ############################################
 	// Action of architecture
 
 	@action(name = "later", args = {
-			@arg(name = IKeywordIrit.THE_ACTION, type = IType.ID, optional = false, doc = @doc("the name of an action or a primitive")),
-			@arg(name = IKeywordIrit.WITH_ARGUMENTS, type = IType.MAP, optional = true, doc = @doc("a map expression containing the parameters of the action")),
-			@arg(name = IKeywordIrit.AT, type = IType.DATE, optional = true, doc = @doc("call date")),
-			@arg(name = IKeywordIrit.REFER_TO, type = IType.AGENT, optional = true, doc = @doc("define the agent to refer, for example the caller")), }, doc = @doc(examples = {
+			@arg(name = IKeywordIrit.THE_ACTION, type = IType.ID, optional = false, doc = @doc("The name of an action or a primitive")),
+			@arg(name = IKeywordIrit.WITH_ARGUMENTS, type = IType.MAP, optional = true, doc = @doc("A map expression containing the parameters of the action")),
+			@arg(name = IKeywordIrit.AT, type = IType.DATE, optional = true, doc = @doc("Call date")),
+			@arg(name = IKeywordIrit.REFER_TO, type = IType.AGENT, optional = true, doc = @doc("The agent to refer")) }, doc = @doc(examples = {
 					@example("do later execute: my_action arguments: map((\"test\"::2)) date: starting_date") }, value = "Do action when the date is reached."))
 	@SuppressWarnings("unchecked")
 	public Object register(final IScope scope) throws GamaRuntimeException {
 		// Get date
 		GamaDate date = (GamaDate) scope.getArg(IKeywordIrit.AT, IType.DATE);
-		// Get species
-		String species = scope.getAgent().getSpeciesName();
+		// Get caller
+		IAgent caller = scope.getAgent();
 		// Get action
 		ActionDescription action = (ActionDescription) scope.getArg(IKeywordIrit.THE_ACTION, IType.ID);
 		// Get arguments
@@ -115,6 +125,29 @@ public class SchedulingSkill extends Skill {
 			throw GamaRuntimeException
 					.error("The manager must use the control \"event_manager\" to execute the action \"later\"", scope);
 		}
-		return eventSkill.register(scope, species, action, args, date, referredAgent);
+		return eventSkill.register(scope, caller, action, args, date, referredAgent);
+	}
+
+	@action(name = "clear_events", doc = @doc(examples = {
+			@example("do clear_events") }, value = "Clear all events."))
+	public Object clear(final IScope scope) throws GamaRuntimeException {
+		// Get caller
+		IAgent caller = scope.getAgent();
+		
+		// Get manager
+		IAgent manager = (IAgent) scope.getAgent().getAttribute(IKeywordIrit.EVENT_MANAGER);
+
+		if (manager == null) {
+			throw GamaRuntimeException.error("The manager must be defined if you have to use the action \"later\"",
+					scope);
+		}
+
+		// Get skill and do register on it
+		EventManagerArchitecture eventSkill = (EventManagerArchitecture) manager.getSpecies().getArchitecture();
+		if (eventSkill == null) {
+			throw GamaRuntimeException
+					.error("The manager must use the control \"event_manager\" to execute the action \"later\"", scope);
+		}
+		return eventSkill.clear(scope, caller);
 	}
 }

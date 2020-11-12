@@ -27,7 +27,7 @@ import irit.gaml.types.TypesIrit;
 public class GamaStack<T> extends GamaDeque<T> implements IDequeOperator<T> {
 
 	// ############################################
-	// Attributs
+	// Attributes
 
 	/**
 	 * The serializable class does not declare a static final serialVersionUID field

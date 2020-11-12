@@ -35,7 +35,7 @@ import msi.gaml.types.IType;
  * @author Jean-François Erdelyi
  */
 @vars({ @variable(name = IKeyword.SIZE, type = IType.INT, doc = @doc("Return the size of the all queues")),
-		@variable(name = IKeywordIrit.SIZE_BY_SPECIES, type = IType.MAP, doc = @doc("Return the size of the all queues (sorted by name)")) })
+		@variable(name = IKeywordIrit.SIZE_BY_AGENT, type = IType.MAP, doc = @doc("Return the size of the all queues (sorted by agent name)")) })
 @skill(name = IKeywordIrit.EVENT_MANAGER, concept = { IConcept.BEHAVIOR,
 		IConcept.ARCHITECTURE }, doc = @doc("Event manager behavior"))
 public class EventManagerArchitecture extends ReflexArchitecture {
@@ -52,11 +52,11 @@ public class EventManagerArchitecture extends ReflexArchitecture {
 	}
 
 	/**
-	 * Get size by species
+	 * Get size by agent
 	 */
-	@getter(IKeywordIrit.SIZE_BY_SPECIES)
-	public GamaMap<String, Integer> getQueueSizeBySpecies(final IAgent agent) {
-		return getCurrentManagerIfExists(agent).sizeBySpecies();
+	@getter(IKeywordIrit.SIZE_BY_AGENT)
+	public GamaMap<IAgent, Integer> getQueueSizeBySpecies(final IAgent agent) {
+		return getCurrentManagerIfExists(agent).sizeByAgent();
 	}
 
 	// ############################################
@@ -116,7 +116,7 @@ public class EventManagerArchitecture extends ReflexArchitecture {
 	/**
 	 * Internal register (used by "scheduling" skill)
 	 */
-	public Object register(final IScope scope, final String species, final ActionDescription action,
+	public Object register(final IScope scope, final IAgent caller, final ActionDescription action,
 			final GamaMap<String, Object> args, final GamaDate date, final IAgent referredAgent) throws GamaRuntimeException {
 
 		IAgent agent = (IAgent) getCurrentAgent(scope).getAttribute(IKeywordIrit.EVENT_MANAGER);
@@ -124,6 +124,21 @@ public class EventManagerArchitecture extends ReflexArchitecture {
 			return null;
 		}
 
-		return getCurrentManagerIfExists(agent).register(scope, species, action, args, date, referredAgent);
+		return getCurrentManagerIfExists(agent).register(scope, caller, action, args, date, referredAgent);
+	}
+	
+	/**
+	 * Internal clear (used by "scheduling" skill)
+	 */
+	public Object clear(final IScope scope, final IAgent caller) throws GamaRuntimeException {
+
+		IAgent agent = (IAgent) getCurrentAgent(scope).getAttribute(IKeywordIrit.EVENT_MANAGER);
+		if (scope.interrupted() || agent == null) {
+			return false;
+		}
+
+		getCurrentManagerIfExists(agent).clear(scope, caller);
+		
+		return true;
 	}
 }

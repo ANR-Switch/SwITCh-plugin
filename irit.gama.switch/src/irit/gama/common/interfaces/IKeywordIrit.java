@@ -38,8 +38,9 @@ public interface IKeywordIrit {
 	public static final String WITH_ARGUMENTS = "with_arguments";
 	public static final String AT = "at";
 	public static final String REFER_TO = "refer_to";
+	public static final String CALLER = "caller";
 
-	public static final String SIZE_BY_SPECIES = "size_by_species";
+	public static final String SIZE_BY_AGENT = "size_by_agent";
 
 	public static final String SCHEDULING = "scheduling";
 

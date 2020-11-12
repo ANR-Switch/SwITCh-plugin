@@ -49,7 +49,7 @@ species manager control: event_manager {
 
 	// Reflex to write the size of event queues
 	reflex write_size {
-		write "[" + name + "]::[write_size] manager size = " + size + "; sorted by species = " + size_by_species + " at " + (starting_date + time);
+		write "[" + name + "]::[write_size] manager size = " + size + "; sorted by agent = " + size_by_agent + " at " + (starting_date + time);
 	}
 
 }
@@ -110,7 +110,7 @@ species queue_road skills: [scheduling] {
 
 			// Die
 			ask c {
-				do later the_action: die_in_peace with_arguments: map("last_word"::"OK"); // at is null -> now
+				do later the_action: die_in_peace with_arguments: map("last_word"::"OK"); // at is null -> no
 			}
 
 		}

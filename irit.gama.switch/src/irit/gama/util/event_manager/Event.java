@@ -91,6 +91,11 @@ public class Event {
 	 * Referred agent
 	 */
 	private IAgent referredAgent;
+	
+	/**
+	 * Caller agent
+	 */
+	private IAgent caller;
 
 	// ############################################
 	// Constructor
@@ -98,17 +103,18 @@ public class Event {
 	/**
 	 * Create a new event with action and Arguments as map
 	 */
-	public Event(IScope scope, String species, ActionDescription action, final GamaMap<String, Object> args,
+	public Event(IScope scope, IAgent caller, ActionDescription action, final GamaMap<String, Object> args,
 			GamaDate date, IAgent referredAgent) {
 
 		this.scope = scope.copy("Later");
-		this.species = species;
+		this.species = caller.getSpeciesName();
+		this.caller = caller;
 		this.referredAgent = referredAgent;
 
 		// Get arguments
 		arguments = action.createCompiledArgs().resolveAgainst(scope);
 
-		// Convert arguments and insert in the current scope all values
+		// Convert arguments and insert it in the current scope 
 		IList<String> keys = args.getKeys();
 		for (String key : keys) {
 			IType<?> type = this.scope.getType(key);
@@ -206,6 +212,7 @@ public class Event {
 		}
 		scope.getAgent().setAttribute(IKeywordIrit.EVENT_DATE, date);
 		scope.getAgent().setAttribute(IKeywordIrit.REFER_TO, referredAgent);
+		scope.getAgent().setAttribute(IKeywordIrit.CALLER, caller);
 		return scope.execute(action, getRuntimeArgs()).getValue();
 	}
 
