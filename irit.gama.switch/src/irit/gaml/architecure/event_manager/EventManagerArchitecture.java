@@ -12,7 +12,8 @@
 package irit.gaml.architecure.event_manager;
 
 import irit.gama.common.interfaces.IKeywordIrit;
-import irit.gama.util.event_manager.EventManager;
+import irit.gama.util.event_manager.Event;
+import irit.gama.util.event_manager.EventManagerFast;
 import msi.gama.common.interfaces.IKeyword;
 import msi.gama.metamodel.agent.IAgent;
 import msi.gama.precompiler.GamlAnnotations.doc;
@@ -34,8 +35,7 @@ import msi.gaml.types.IType;
  * 
  * @author Jean-François Erdelyi
  */
-@vars({ @variable(name = IKeyword.SIZE, type = IType.INT, doc = @doc("Return the size of the all queues")),
-		@variable(name = IKeywordIrit.SIZE_BY_AGENT, type = IType.MAP, doc = @doc("Return the size of the all queues (sorted by agent name)")) })
+@vars({ @variable(name = IKeyword.SIZE, type = IType.INT, doc = @doc("Return the size of the all queues")) })
 @skill(name = IKeywordIrit.EVENT_MANAGER, concept = { IConcept.BEHAVIOR,
 		IConcept.ARCHITECTURE }, doc = @doc("Event manager behavior"))
 public class EventManagerArchitecture extends ReflexArchitecture {
@@ -49,14 +49,6 @@ public class EventManagerArchitecture extends ReflexArchitecture {
 	@getter(IKeyword.SIZE)
 	public int getQueueSize(final IAgent agent) {
 		return getCurrentManagerIfExists(agent).size();
-	}
-
-	/**
-	 * Get size by agent
-	 */
-	@getter(IKeywordIrit.SIZE_BY_AGENT)
-	public GamaMap<IAgent, Integer> getQueueSizeBySpecies(final IAgent agent) {
-		return getCurrentManagerIfExists(agent).sizeByAgent();
 	}
 
 	// ############################################
@@ -77,7 +69,7 @@ public class EventManagerArchitecture extends ReflexArchitecture {
 	@Override
 	public boolean init(final IScope scope) throws GamaRuntimeException {
 		final IAgent agent = getCurrentAgent(scope);
-		final EventManager manager = new EventManager();
+		final EventManagerFast manager = new EventManagerFast();
 
 		agent.setAttribute(IKeywordIrit.EVENT_MANAGER, manager);
 		return true;
@@ -98,15 +90,15 @@ public class EventManagerArchitecture extends ReflexArchitecture {
 	/**
 	 * Get current manager by agent
 	 */
-	protected EventManager getCurrentManager(final IAgent agent) throws GamaRuntimeException {
-		return (EventManager) agent.getAttribute(IKeywordIrit.EVENT_MANAGER);
+	protected EventManagerFast getCurrentManager(final IAgent agent) throws GamaRuntimeException {
+		return (EventManagerFast) agent.getAttribute(IKeywordIrit.EVENT_MANAGER);
 	}
 
 	/**
 	 * Get current manager by agent. throw exception if does not exists
 	 */
-	protected EventManager getCurrentManagerIfExists(final IAgent agent) throws GamaRuntimeException {
-		EventManager manager = getCurrentManager(agent);
+	protected EventManagerFast getCurrentManagerIfExists(final IAgent agent) throws GamaRuntimeException {
+		EventManagerFast manager = getCurrentManager(agent);
 		if (manager == null) {
 			throw GamaRuntimeException.error("No event manager agent was detected", agent.getScope());
 		}
@@ -117,16 +109,18 @@ public class EventManagerArchitecture extends ReflexArchitecture {
 	 * Internal register (used by "scheduling" skill)
 	 */
 	public Object register(final IScope scope, final IAgent caller, final ActionDescription action,
-			final GamaMap<String, Object> args, final GamaDate date, final IAgent referredAgent) throws GamaRuntimeException {
+			final GamaMap<String, Object> args, final GamaDate date, final IAgent referredAgent)
+			throws GamaRuntimeException {
 
 		IAgent agent = (IAgent) getCurrentAgent(scope).getAttribute(IKeywordIrit.EVENT_MANAGER);
 		if (scope.interrupted() || agent == null) {
 			return null;
 		}
 
-		return getCurrentManagerIfExists(agent).register(scope, caller, action, args, date, referredAgent);
+		return getCurrentManagerIfExists(agent).register(scope,
+				new Event(scope, caller, action, args, date, referredAgent));
 	}
-	
+
 	/**
 	 * Internal clear (used by "scheduling" skill)
 	 */
@@ -138,7 +132,6 @@ public class EventManagerArchitecture extends ReflexArchitecture {
 		}
 
 		getCurrentManagerIfExists(agent).clear(scope, caller);
-		
 		return true;
 	}
 }

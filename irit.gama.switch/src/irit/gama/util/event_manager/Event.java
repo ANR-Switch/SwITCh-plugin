@@ -96,7 +96,7 @@ public class Event {
 	 * Caller agent
 	 */
 	private IAgent caller;
-
+	
 	// ############################################
 	// Constructor
 
@@ -188,6 +188,13 @@ public class Event {
 	public IScope getScope() {
 		return scope;
 	}
+	
+	/**
+	 * Get caller
+	 */
+	public IAgent getCaller() {
+		return caller;
+	}
 
 	/**
 	 * Is greater than the event e
@@ -212,7 +219,6 @@ public class Event {
 		}
 		scope.getAgent().setAttribute(IKeywordIrit.EVENT_DATE, date);
 		scope.getAgent().setAttribute(IKeywordIrit.REFER_TO, referredAgent);
-		scope.getAgent().setAttribute(IKeywordIrit.CALLER, caller);
 		return scope.execute(action, getRuntimeArgs()).getValue();
 	}
 

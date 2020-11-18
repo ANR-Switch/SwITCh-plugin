@@ -41,8 +41,7 @@ import msi.gaml.types.IType;
 		@doc("The event manager, must be defined in another species with \"control: event_manager\"") }),
 		@variable(name = IKeywordIrit.EVENT_DATE, type = IType.DATE, doc = { @doc("The date of the previous event") }),
 		@variable(name = IKeywordIrit.REFER_TO, type = IType.AGENT, doc = {
-				@doc("The agent to refer when the event is triggered") }),
-		@variable(name = IKeywordIrit.CALLER, type = IType.AGENT, doc = { @doc("Caller agent") }) })
+				@doc("The agent to refer when the event is triggered") }) })
 @skill(name = IKeywordIrit.SCHEDULING, concept = { IKeywordIrit.SCHEDULING, IConcept.SKILL }, internal = true)
 public class SchedulingSkill extends Skill {
 
@@ -79,14 +78,6 @@ public class SchedulingSkill extends Skill {
 			return null;
 		}
 		return (IAgent) agent.getAttribute(IKeywordIrit.REFER_TO);
-	}
-
-	@getter(IKeywordIrit.CALLER)
-	public IAgent getCaller(final IAgent agent) {
-		if (agent == null) {
-			return null;
-		}
-		return (IAgent) agent.getAttribute(IKeywordIrit.CALLER);
 	}
 
 	// ############################################

@@ -10,7 +10,7 @@ model Road
  * Initialisation of the model
  */
 global {
-	// Road and cars params
+// Road and cars params
 	float road_width <- 3.5 #m const: true;
 	float road_height <- 30 #m const: true;
 	float car_width <- 1.5 #m const: true;
@@ -49,7 +49,7 @@ species manager control: event_manager {
 
 	// Reflex to write the size of event queues
 	reflex write_size {
-		write "[" + name + "]::[write_size] manager size = " + size + "; sorted by agent = " + size_by_agent + " at " + (starting_date + time);
+		write "[" + name + "]::[write_size] manager size = " + size + " at " + (starting_date + time);
 	}
 
 }
@@ -71,6 +71,7 @@ species car skills: [scheduling] {
 		ask queue_road[0] {
 			do change_locations;
 		}
+
 		do later the_action: die at: (event_date + 1);
 	}
 
@@ -114,8 +115,9 @@ species queue_road skills: [scheduling] {
 			}
 
 		}
+
 	}
-	
+
 	// Change location of each cars
 	action change_locations {
 		int i <- 0;
@@ -123,6 +125,7 @@ species queue_road skills: [scheduling] {
 			c.location <- {road_width / 2.0, c.location.y - (car_height + (car_height / 2.0))};
 			i <- i + 1;
 		}
+
 	}
 
 	// Add new car

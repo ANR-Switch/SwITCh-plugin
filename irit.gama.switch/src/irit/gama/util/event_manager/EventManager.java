@@ -17,18 +17,16 @@ import msi.gama.metamodel.agent.IAgent;
 import msi.gama.runtime.ExecutionResult;
 import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
-import msi.gama.util.GamaDate;
 import msi.gama.util.GamaMap;
 import msi.gama.util.GamaMapFactory;
 import msi.gama.util.GamaPair;
-import msi.gaml.descriptions.ActionDescription;
 import msi.gaml.types.IType;
 import msi.gaml.types.Types;
 
 /**
  * A queue of event queue
  */
-public class EventManager extends HashMap<IAgent, EventQueue> {
+public class EventManager extends HashMap<IAgent, EventQueue> implements IEventManager {
 
 	// ############################################
 	// Attributes
@@ -52,7 +50,7 @@ public class EventManager extends HashMap<IAgent, EventQueue> {
 	/**
 	 * The last event executed
 	 */
-	Event lastEvent = null;
+	private Event lastEvent = null;
 
 	// ############################################
 	// Methods
@@ -116,19 +114,24 @@ public class EventManager extends HashMap<IAgent, EventQueue> {
 	/**
 	 * Inner Register
 	 */
-	private Object innerRegister(Event event, IAgent agent) throws GamaRuntimeException {
+	private Object innerRegister(Event event) throws GamaRuntimeException {
 		if (event.getDate() == null) {
 			return event.execute();
 		} else {
 			if (executeActive) {
 				if (lastEvent.getDate().isGreaterThan(event.getDate(), true)) {
-					throw GamaRuntimeException.warning("Past is not allowed " + agent.getName() + " at " + event.getDate(),
+					throw GamaRuntimeException.warning(
+							"Past is not allowed " + event.getCaller().getName() + " at " + event.getDate(),
 							event.getScope());
 				}
 			}
 			// Add event
-			EventQueue events = getOrCreateQueue(agent);
-			events.add(event);
+			EventQueue events = getOrCreateQueue(event.getCaller());
+			// If the caller is dead so do not add the event
+			if (!event.getCaller().dead()) {
+				// Add event
+				events.add(event);
+			}
 			return ExecutionResult.withValue(true);
 		}
 	}
@@ -144,20 +147,25 @@ public class EventManager extends HashMap<IAgent, EventQueue> {
 		while ((size() > 0) && isTimeReached()) {
 			// Execute action
 			lastEvent = pop();
-			results.addValue(scope, new GamaPair<String, Object>(lastEvent.toString(), lastEvent.execute(),
-					Types.get(IType.STRING), Types.get(IType.NONE)));
+			if (!lastEvent.getCaller().dead()) {
+				results.addValue(scope, new GamaPair<String, Object>(lastEvent.toString(), lastEvent.execute(),
+						Types.get(IType.STRING), Types.get(IType.NONE)));
+			}
 		}
 		executeActive = false;
 
 		return results;
 	}
-	
+
 	/**
 	 * Inner Clear
 	 */
 	private void innerClear(IScope scope, final IAgent caller) throws GamaRuntimeException {
-		get(caller).clear();
-		remove(caller);
+		EventQueue queue = get(caller);
+		if (queue != null) {
+			queue.clear();
+			remove(caller);
+		}
 	}
 
 	/**
@@ -170,20 +178,6 @@ public class EventManager extends HashMap<IAgent, EventQueue> {
 		}
 
 		super.clear();
-	}
-
-	/**
-	 * Get size by agent
-	 */
-	@SuppressWarnings("unchecked")
-	public GamaMap<IAgent, Integer> sizeByAgent() {
-		GamaMap<IAgent, Integer> ret = (GamaMap<IAgent, Integer>) GamaMapFactory.create();
-
-		for (Entry<IAgent, EventQueue> entry : entrySet()) {
-			ret.put(entry.getKey(), entry.getValue().size());
-		}
-
-		return ret;
 	}
 
 	/**
@@ -206,25 +200,25 @@ public class EventManager extends HashMap<IAgent, EventQueue> {
 	/**
 	 * Register with action and arguments as map
 	 */
-	public Object register(final IScope scope, final IAgent caller, final ActionDescription action,
-			final GamaMap<String, Object> args, final GamaDate date, final IAgent referredAgent)
-			throws GamaRuntimeException {
+	@Override
+	public Object register(final IScope scope, final Event event) throws GamaRuntimeException {
 		// Create a new event
-		return innerRegister(new Event(scope, caller, action, args, date, referredAgent), caller);
+		return innerRegister(event);
 	}
 
 	/**
 	 * Execute the next events
 	 */
+	@Override
 	public Object execute(final IScope scope) throws GamaRuntimeException {
 		// Return result
 		return innerExecute(scope);
 	}
-	
-	
+
 	/**
 	 * Execute the next events
 	 */
+	@Override
 	public void clear(final IScope scope, final IAgent caller) throws GamaRuntimeException {
 		// Clear
 		innerClear(scope, caller);
