@@ -95,7 +95,7 @@ public class Event {
 	/**
 	 * Caller agent
 	 */
-	private IAgent caller;
+	private IAgent agent;
 	
 	// ############################################
 	// Constructor
@@ -108,7 +108,7 @@ public class Event {
 
 		this.scope = scope.copy("Later");
 		this.species = caller.getSpeciesName();
-		this.caller = caller;
+		this.agent = caller;
 		this.referredAgent = referredAgent;
 
 		// Get arguments
@@ -192,8 +192,8 @@ public class Event {
 	/**
 	 * Get caller
 	 */
-	public IAgent getCaller() {
-		return caller;
+	public IAgent getAgent() {
+		return agent;
 	}
 
 	/**

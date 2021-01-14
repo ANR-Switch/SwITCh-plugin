@@ -43,5 +43,24 @@ public interface IKeywordIrit {
 	public static final String SIZE_BY_AGENT = "size_by_agent";
 
 	public static final String SCHEDULING = "scheduling";
+	
+	
+	/**
+	 * Logger keywords
+	 */
+	public static final String LOGGING = "logging";
+	public static final String LOGGING_BOOK = "logging_book";
+	
+	public static final String FLUSH = "flush";
+	public static final String LOGBOOK = "logbook";
+	public static final String LOG_DATA = "log_data";
+	public static final String FILE_NAME = "file_name";
+	public static final String AGENT_NAME = "agent_name";
+	public static final String DATA_NAME = "data_name";
+	public static final String VALUE = "value";
+	public static final String DATE = "date";
+	public static final String X = "x";
+	public static final String Y = "y";
+
 
 }

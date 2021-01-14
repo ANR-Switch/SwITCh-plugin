@@ -38,12 +38,12 @@ public class EventManager extends HashMap<IAgent, EventQueue> implements IEventM
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Best event this step
+	 * Next event
 	 */
 	private Entry<IAgent, EventQueue> bestEntry = null;
 
 	/**
-	 * If true execution is active
+	 * If true, execution is active
 	 */
 	private boolean executeActive = false;
 
@@ -121,14 +121,14 @@ public class EventManager extends HashMap<IAgent, EventQueue> implements IEventM
 			if (executeActive) {
 				if (lastEvent.getDate().isGreaterThan(event.getDate(), true)) {
 					throw GamaRuntimeException.warning(
-							"Past is not allowed " + event.getCaller().getName() + " at " + event.getDate(),
+							"Past is not allowed " + event.getAgent().getName() + " at " + event.getDate(),
 							event.getScope());
 				}
 			}
 			// Add event
-			EventQueue events = getOrCreateQueue(event.getCaller());
+			EventQueue events = getOrCreateQueue(event.getAgent());
 			// If the caller is dead so do not add the event
-			if (!event.getCaller().dead()) {
+			if (!event.getAgent().dead()) {
 				// Add event
 				events.add(event);
 			}
@@ -147,7 +147,7 @@ public class EventManager extends HashMap<IAgent, EventQueue> implements IEventM
 		while ((size() > 0) && isTimeReached()) {
 			// Execute action
 			lastEvent = pop();
-			if (!lastEvent.getCaller().dead()) {
+			if (!lastEvent.getAgent().dead()) {
 				results.addValue(scope, new GamaPair<String, Object>(lastEvent.toString(), lastEvent.execute(),
 						Types.get(IType.STRING), Types.get(IType.NONE)));
 			}

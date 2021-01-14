@@ -16,7 +16,7 @@ import java.util.PriorityQueue;
 import irit.gama.util.event_manager.Event.EventComparator;
 
 /**
- * Event queue used by the event manager (one queue by species)
+ * Event queue used by the event manager
  * 
  * @author Jean-François Erdelyi
  */

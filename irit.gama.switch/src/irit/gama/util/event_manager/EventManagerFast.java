@@ -16,6 +16,7 @@ import irit.gama.util.event_manager.Event.EventComparator;
 import msi.gama.metamodel.agent.IAgent;
 import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
+import msi.gama.util.GamaDate;
 
 /**
  * Fast event manager
@@ -56,20 +57,32 @@ public class EventManagerFast extends EventQueue implements IEventManager {
 	 */
 	@Override
 	public Object register(IScope scope, Event event) throws GamaRuntimeException {
-		if (event.getDate() == null) {
+		if (event.getAgent().dead()) {
+			return false;
+		}
+		
+		if (event.getDate() == null /*|| event.getDate().equals(scope.getSimulation().getClock().getCurrentDate())*/) {
 			return event.execute();
 		} else {
 			if (executeActive) {
+				// Causality check
 				if (lastEvent.getDate().isGreaterThan(event.getDate(), true)) {
-					throw GamaRuntimeException.warning("Past is not allowed", scope);
+					throw GamaRuntimeException
+							.warning("Past is not allowed " + lastEvent.getDate() + " vs " + event.getDate(), scope);
+				}
+			} else {
+				// Causality check
+				//GamaDate simDate = scope.getSimulation().getClock().getCurrentDate().minusMillis(scope.getSimulation().getClock().getStepInMillis());
+				GamaDate simDate = scope.getSimulation().getClock().getCurrentDate();
+				if (simDate.isGreaterThan(event.getDate(), true)) {
+					throw GamaRuntimeException
+							.warning("Past is not allowed " + simDate + " vs " + event.getDate(), scope);
 				}
 			}
-
-			// If the caller is dead so do not add the event
-			if (!event.getCaller().dead()) {
-				// Add event
-				add(event);
-			}
+			
+			// Add event
+			add(event);				
+			
 			return true;
 		}
 	}
@@ -84,7 +97,7 @@ public class EventManagerFast extends EventQueue implements IEventManager {
 			lastEvent = poll();
 
 			// If the caller is dead so do not execute the event
-			if (!lastEvent.getCaller().dead()) {
+			if (!lastEvent.getAgent().dead()) {
 				lastEvent.execute();
 			}
 		}
@@ -100,7 +113,7 @@ public class EventManagerFast extends EventQueue implements IEventManager {
 		Iterator<Event> value = iterator();
 
 		while (value.hasNext()) {
-			if (value.next().getCaller() == caller) {
+			if (value.next().getAgent() == caller) {
 				value.remove();
 			}
 		}
