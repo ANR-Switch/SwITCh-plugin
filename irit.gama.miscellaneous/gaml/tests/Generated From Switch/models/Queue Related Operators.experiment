@@ -1,0 +1,20 @@
+/**
+ *  Queue Related Operators
+ *  Author: GAMA Automatic Generator
+ *  Description: Unit tests of operators belonging to "Queue Related Operators".
+ */
+
+experiment "Run Tests" type: test {	
+
+	
+		test "pop" {
+			unknown var0 <- pop(stack([1, 2])); 	// var0 equals 2
+			assert var0 = 2; 
+			unknown var1 <- pop(queue([1, 2])); 	// var1 equals 1
+			assert var1 = 1; 
+
+		}
+	
+}
+
+	

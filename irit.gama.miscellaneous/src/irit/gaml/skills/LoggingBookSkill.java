@@ -18,6 +18,7 @@ import org.jfree.data.json.impl.JSONArray;
 import org.jfree.data.json.impl.JSONObject;
 
 import irit.gama.common.interfaces.IKeywordIrit;
+import msi.gama.common.util.FileUtils;
 import msi.gama.metamodel.agent.IAgent;
 import msi.gama.precompiler.GamlAnnotations.action;
 import msi.gama.precompiler.GamlAnnotations.arg;
@@ -73,8 +74,9 @@ public class LoggingBookSkill extends Skill {
 		}
 
 		// Write data
+		String path = FileUtils.constructAbsoluteFilePath(scope, fileName, false);
 		try {
-			fw = new FileWriter(fileName);
+			fw = new FileWriter(path);
 			fw.write(jsonData.toJSONString());
 		} catch (IOException e) {
 			throw GamaRuntimeException.error(e.getMessage(), scope);

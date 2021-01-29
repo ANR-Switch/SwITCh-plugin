@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SwITCh
-Bundle-SymbolicName: irit.gama.switch;singleton:=true
+Bundle-SymbolicName: irit.gama.miscellaneous;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: irit.gama.feature.switch
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: msi.gama.core;bundle-version="1.8.1",
  msi.gama.ext;bundle-version="1.8.1",
  ummisco.gama.annotations

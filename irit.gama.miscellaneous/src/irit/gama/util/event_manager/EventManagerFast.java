@@ -92,6 +92,7 @@ public class EventManagerFast extends EventQueue implements IEventManager {
 	 */
 	@Override
 	public Object execute(IScope scope) throws GamaRuntimeException {
+		int nbEvent = 0;
 		executeActive = true;
 		while ((size() > 0) && isTimeReached()) {
 			lastEvent = poll();
@@ -99,9 +100,12 @@ public class EventManagerFast extends EventQueue implements IEventManager {
 			// If the caller is dead so do not execute the event
 			if (!lastEvent.getAgent().dead()) {
 				lastEvent.execute();
+				//System.out.println(lastEvent);
+				nbEvent ++;
 			}
 		}
 		executeActive = false;
+		System.out.println(nbEvent);
 		return true;
 	}
 
